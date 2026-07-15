@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="t4">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KL Werkzeug — Verwaltung</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@master/qrcode.min.js" defer></script>
+<style>
+[data-theme="t1"]{--bg0:#07080a;--bg1:#0d0f13;--bg2:#13161d;--bg3:#1a1e28;--bg4:#222633;--line:rgba(255,255,255,.055);--line2:rgba(255,255,255,.1);--text:#e8eaf5;--text2:#8890b0;--text3:#40486a;--acc:#7c6af7;--acc2:#f7c26a;--acc3:#52e8a0;--acc4:#f76a6a;--glow:rgba(124,106,247,.22);--grad:linear-gradient(135deg,#7c6af7,#b06af7,#f7c26a);--glass:rgba(13,15,20,.85);--glass2:rgba(19,22,30,.92);--fn:'Outfit',sans-serif;--fn2:'JetBrains Mono',monospace}
+[data-theme="t2"]{--bg0:#010e0f;--bg1:#031619;--bg2:#051f25;--bg3:#082a33;--bg4:#0a3440;--line:rgba(0,220,180,.07);--line2:rgba(0,220,180,.14);--text:#c8f5ec;--text2:#60aaa0;--text3:#284a48;--acc:#00e5b4;--acc2:#7b5af7;--acc3:#00c8ff;--acc4:#ff6b6b;--glow:rgba(0,229,180,.22);--grad:linear-gradient(135deg,#00e5b4,#00c8ff,#7b5af7);--glass:rgba(3,22,25,.86);--glass2:rgba(5,31,37,.93);--fn:'Space Grotesk',sans-serif;--fn2:'JetBrains Mono',monospace}
+[data-theme="t4"]{--bg0:#eef2f8;--bg1:#fff;--bg2:#e8edf6;--bg3:#dde4f0;--bg4:#d0d9ec;--line:rgba(0,0,0,.07);--line2:rgba(0,0,0,.13);--text:#0e1428;--text2:#4a5480;--text3:#9aa0c0;--acc:#2563eb;--acc2:#7c3aed;--acc3:#16a34a;--acc4:#dc2626;--glow:rgba(37,99,235,.14);--grad:linear-gradient(135deg,#2563eb,#7c3aed,#16a34a);--glass:rgba(255,255,255,.88);--glass2:rgba(248,250,255,.95);--fn:'Outfit',sans-serif;--fn2:'JetBrains Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{font-family:var(--fn);background:var(--bg0);color:var(--text);min-height:100dvh;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 90% 55% at 50% 0%,var(--glow) 0%,transparent 55%)}
+.top{position:sticky;top:0;z-index:50;min-height:58px;display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--glass);backdrop-filter:blur(24px) saturate(160%);border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#fff;box-shadow:0 0 16px var(--glow)}
+.ttl{font-size:14px;font-weight:800;line-height:1.1}
+.ttl span{display:block;font-size:9px;font-weight:500;color:var(--text3);font-family:var(--fn2);letter-spacing:.05em;margin-top:1px}
+.rolechip{margin-left:auto;display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);color:var(--acc);font-size:11px;font-weight:800;font-family:var(--fn2)}
+.lang{display:flex;gap:2px;background:var(--bg3);border:1px solid var(--line2);border-radius:8px;padding:2px}
+.lang button{min-width:34px;padding:6px 8px;border-radius:6px;border:none;background:transparent;color:var(--text3);font-size:11px;font-weight:700;cursor:pointer}
+.lang button.on{background:var(--acc);color:#fff}
+.icobtn{width:38px;height:38px;border-radius:9px;border:1px solid var(--line2);background:var(--bg3);color:var(--text2);font-size:17px;cursor:pointer}
+.wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:16px 15px 40px}
+.tabs{display:flex;gap:4px;background:var(--bg3);border-radius:12px;padding:4px;margin-bottom:18px;overflow-x:auto}
+.tabs button{flex:1;min-width:120px;min-height:44px;border:none;border-radius:9px;background:transparent;color:var(--text2);font-family:var(--fn);font-size:13.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
+.tabs button.on{background:var(--acc);color:#fff;box-shadow:0 4px 14px var(--glow)}
+.pane{display:none}.pane.on{display:block}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px;margin-bottom:16px}
+.kpi{background:var(--glass2);backdrop-filter:blur(12px);border:1px solid var(--line2);border-radius:14px;padding:14px}
+.kpi-t{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);font-family:var(--fn2)}
+.kpi-v{font-size:26px;font-weight:900;letter-spacing:-.02em;margin-top:4px;line-height:1}
+.kpi-s{font-size:10px;color:var(--text3);font-family:var(--fn2);margin-top:4px}
+.kpi.money .kpi-v{color:var(--acc)}.kpi.out .kpi-v{color:var(--acc2)}.kpi.rep .kpi-v{color:var(--acc4)}.kpi.lost .kpi-v{color:var(--acc4)}
+.sec-h{font-size:12px;font-weight:800;letter-spacing:.03em;color:var(--text2);margin:18px 2px 11px;display:flex;align-items:center;gap:7px}
+.bar{display:flex;gap:9px;align-items:center;margin-bottom:13px;flex-wrap:wrap}
+.search{flex:1;min-width:180px;min-height:44px;padding:11px 13px;border-radius:11px;border:1px solid var(--line2);background:var(--glass2);color:var(--text);font-family:var(--fn);font-size:15px}
+.search:focus{outline:none;border-color:var(--acc)}
+.btn{min-height:44px;padding:11px 16px;border-radius:11px;border:none;font-family:var(--fn);font-size:14px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn.acc{background:var(--acc);color:#fff}.btn.gh{background:var(--bg3);color:var(--text2);border:1px solid var(--line2)}
+.btn:active{transform:scale(.97)}
+table{width:100%;border-collapse:collapse}
+.tbl-wrap{background:var(--glass2);border:1px solid var(--line2);border-radius:14px;overflow:hidden}
+th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);font-family:var(--fn2);padding:11px 13px;border-bottom:1px solid var(--line2)}
+td{padding:11px 13px;border-bottom:1px solid var(--line);font-size:13.5px}
+tr:last-child td{border-bottom:none}
+tr.row{cursor:pointer}tr.row:hover td{background:var(--bg2)}
+.pill{font-size:10px;font-weight:800;font-family:var(--fn2);padding:3px 8px;border-radius:20px;white-space:nowrap}
+.pill.wh{background:rgba(22,163,74,.14);color:var(--acc3)}.pill.out{background:rgba(37,99,235,.14);color:var(--acc)}
+.pill.bau{background:rgba(124,58,237,.13);color:var(--acc2)}.pill.rep{background:rgba(220,38,38,.14);color:var(--acc4)}
+.pill.over{background:rgba(220,38,38,.16);color:var(--acc4)}
+.pill.ac{background:var(--bg3);color:var(--text2)}
+.money{font-family:var(--fn2);font-weight:700;white-space:nowrap}
+.empty{text-align:center;padding:26px;color:var(--text3);font-family:var(--fn2);font-size:12px}
+.hint{margin-top:14px;padding:13px 14px;border-radius:12px;border:1px dashed var(--line2);background:var(--bg2);color:var(--text3);font-size:11.5px;line-height:1.6;font-family:var(--fn2)}
+/* QR печать */
+.qr-tools{display:flex;gap:9px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.qr-sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.qr-cell{background:#fff;border:1px solid #ccc;border-radius:10px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:7px;break-inside:avoid}
+.qr-cell .qbox{width:120px;height:120px}
+.qr-cell .qlbl{font-size:11px;font-weight:800;color:#0e1428;text-align:center;font-family:'JetBrains Mono',monospace;line-height:1.25}
+.qr-cell .qname{font-size:9px;color:#333;text-align:center}
+/* модалка */
+.sheet{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);padding:16px}
+.sheet.open{display:flex}
+.card{width:100%;max-width:560px;background:var(--bg1);border-radius:20px;border:1px solid var(--line2);padding:22px;max-height:92dvh;overflow:auto}
+.sh-h{font-size:19px;font-weight:800;margin-bottom:16px}
+.field{margin-bottom:13px}.field.row2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.field label{display:block;font-size:11px;color:var(--text2);font-weight:600;margin-bottom:6px}
+.field input,.field select{width:100%;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--line2);background:var(--bg2);color:var(--text);font-family:var(--fn);font-size:15px}
+.field input:focus,.field select:focus{outline:none;border-color:var(--acc)}
+.assetline{font-size:12px;color:var(--text2);font-family:var(--fn2);margin-top:6px}
+.tl{position:relative;padding-left:22px;margin-top:8px}
+.tl::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--line2)}
+.tl-i{position:relative;padding:0 0 14px 4px}
+.tl-i::before{content:'';position:absolute;left:-19px;top:3px;width:11px;height:11px;border-radius:50%;background:var(--acc);border:2px solid var(--bg1)}
+.tl-t{font-size:13.5px;font-weight:700}.tl-d{font-size:11px;color:var(--text3);font-family:var(--fn2);margin-top:2px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);z-index:500;background:var(--bg1);border:1px solid var(--line2);border-radius:13px;padding:13px 18px;font-size:14px;font-weight:700;box-shadow:0 10px 40px rgba(0,0,0,.4);opacity:0;transition:all .3s}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}.toast.ok{color:var(--acc3)}
+@media print{.top,.tabs,.qr-tools,.sec-h,.bar,.hint{display:none!important}.wrap{max-width:100%}.qr-sheet{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="top">
+  <div class="logo">KL</div>
+  <div class="ttl">Werkzeug · Verwaltung<span id="sub">ADMIN · PROTOTYP</span></div>
+  <div class="rolechip">👑 <span id="rolename">Admin</span></div>
+  <div class="lang"><button data-l="de" class="on">DE</button><button data-l="ru">RU</button><button data-l="ro">RO</button></div>
+  <button class="icobtn" id="btn-theme">◐</button>
+</div>
+
+<div class="wrap">
+  <div class="tabs">
+    <button class="on" data-p="dash">📊 <span data-k="dash">Übersicht</span></button>
+    <button data-p="cat">🧰 <span data-k="cat">Katalog</span></button>
+    <button data-p="qr">🏷️ <span data-k="qr">QR-Etiketten</span></button>
+    <button data-p="rep">💶 <span data-k="rep">Berichte</span></button>
+  </div>
+
+  <div class="pane on" id="pane-dash"></div>
+  <div class="pane" id="pane-cat"></div>
+  <div class="pane" id="pane-qr"></div>
+  <div class="pane" id="pane-rep"></div>
+</div>
+
+<div class="sheet" id="sheet"><div class="card" id="sheet-card"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SK='kl_tool_demo_v1';
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const LOCATIONS=[
+ {id:'wh',name:'Lager Salzgitter',warehouse:true,icon:'🏬'},
+ {id:'b1',name:'Baustelle Hannover, Lindenstr.',icon:'🏗️'},
+ {id:'b2',name:'Baustelle Braunschweig, Ölper',icon:'🏗️'}
+];
+const CATS=[
+ {id:'c1',name:'Elektrowerkzeug',icon:'⚡'},{id:'c2',name:'Handwerkzeug',icon:'🔧'},
+ {id:'c3',name:'Messgerät',icon:'📏'},{id:'c4',name:'Leiter/Gerüst',icon:'🪜'},
+ {id:'c5',name:'Maschine',icon:'🛠️'},{id:'c6',name:'Akku/Ladegerät',icon:'🔋'}
+];
+const OWNERS=['KL','LK','MathTools','Atlant'];
+/* демо-цены (netto) по инв-номеру — чтобы отчёты в € работали и на уже засеянных данных */
+const DEMO_COST={'WZ-001':189,'WZ-002':142,'WZ-014':169,'WZ-021':205,'WZ-030':38,'WZ-050':118,'WZ-051':890,'WZ-052':540};
+
+const TR={
+ de:{dash:'Übersicht',cat:'Katalog',qr:'QR-Etiketten',rep:'Berichte',
+   k_total:'Werkzeuge',k_value:'Gesamtwert',k_out:'Wert ausgegeben',k_rep:'Wert Reparatur',k_lost:'Wert verloren',k_over:'Überfällig',
+   overdueH:'Überfällig zur Rückgabe',pruefH:'Prüfung (DGUV V3) fällig',allGood:'Alles im grünen Bereich ✓',
+   catH:'Alle Werkzeuge',add:'+ Werkzeug',search:'Suche… (Name, WZ-Nr.)',
+   col_tool:'Werkzeug',col_status:'Status',col_holder:'Halter/Ort',col_owner:'Eigentümer',col_value:'Wert netto',col_inv:'WZ-Nr.',
+   st_wh:'auf Lager',st_out:'ausgegeben',st_bau:'Baustelle',st_rep:'Reparatur',st_lost:'verloren',st_over:'überfällig',
+   qrH:'QR-Etiketten drucken',qrHint:'Für ~1000 Stück: Etiketten als Rolle bestellen, hier stapelweise erzeugen und ausdrucken (Korrekturstufe H). Unter dem Code steht die WZ-Nr. als Fallback.',
+   printAll:'🖨️ Alle drucken',printFilter:'Auswahl:',allC:'Alle',
+   repH:'Wert je Mitarbeiter / Ort',repHint:'Was der Direktor sehen will: wie viel € Werkzeug bei wem hängt. Später Export für Steuerberater (GWG/Anlagenverzeichnis) und Versicherung.',
+   col_person:'Mitarbeiter / Ort',col_cnt:'Stück',col_sum:'Wert netto',export:'⬇ Export (bald)',
+   addH:'Werkzeug anlegen',editH:'Werkzeug bearbeiten',f_name:'Name',f_cat:'Kategorie',f_inv:'WZ-Nr.',f_serial:'Seriennummer',f_owner:'Eigentümer (Firma)',f_cost:'Kaufpreis netto (€)',f_pruef:'Nächste Prüfung',save:'Speichern',cancel:'Abbrechen',
+   asset_bis:'GWG sofort (<250€)',asset_gwg:'GWG (250–800€)',asset_anl:'Anlagevermögen (>800€)',assetLbl:'Steuerklasse:',
+   hist:'Verlauf',close:'Schließen',printQR:'🖨️ QR drucken',
+   t_issue:'Ausgegeben',t_receive:'Angenommen',t_transfer:'Übergeben',t_return:'Zurück zur Basis',t_repair:'In Reparatur',t_bau:'An Baustelle',
+   saved:'Gespeichert ✓',lager:'Lager Salzgitter'},
+ ru:{dash:'Обзор',cat:'Каталог',qr:'QR-этикетки',rep:'Отчёты',
+   k_total:'Инструмента',k_value:'Общая стоимость',k_out:'Стоим. выдано',k_rep:'Стоим. в ремонте',k_lost:'Стоим. потеряно',k_over:'Просрочено',
+   overdueH:'Просрочено к возврату',pruefH:'Проверка (DGUV V3) подходит',allGood:'Всё в порядке ✓',
+   catH:'Весь инструмент',add:'+ Инструмент',search:'Поиск… (название, WZ-№)',
+   col_tool:'Инструмент',col_status:'Статус',col_holder:'Держатель/место',col_owner:'Владелец',col_value:'Стоим. нетто',col_inv:'WZ-№',
+   st_wh:'на складе',st_out:'выдан',st_bau:'объект',st_rep:'ремонт',st_lost:'потерян',st_over:'просрочено',
+   qrH:'Печать QR-этикеток',qrHint:'Для ~1000 шт.: этикетки заказать рулоном, здесь генерировать пачками и печатать (коррекция H). Под кодом — WZ-№ как запасной вариант.',
+   printAll:'🖨️ Печать всех',printFilter:'Выборка:',allC:'Все',
+   repH:'Стоимость по сотрудникам / местам',repHint:'Что важно директору: сколько € инструмента висит на ком. Позже экспорт для бухгалтера (GWG/реестр) и страховой.',
+   col_person:'Сотрудник / место',col_cnt:'Шт.',col_sum:'Стоим. нетто',export:'⬇ Экспорт (скоро)',
+   addH:'Завести инструмент',editH:'Редактировать',f_name:'Название',f_cat:'Категория',f_inv:'WZ-№',f_serial:'Серийный №',f_owner:'Владелец (фирма)',f_cost:'Цена нетто (€)',f_pruef:'Следующая проверка',save:'Сохранить',cancel:'Отмена',
+   asset_bis:'ГВГ сразу (<250€)',asset_gwg:'ГВГ (250–800€)',asset_anl:'Основное средство (>800€)',assetLbl:'Налог. класс:',
+   hist:'История',close:'Закрыть',printQR:'🖨️ Печать QR',
+   t_issue:'Выдан',t_receive:'Принят',t_transfer:'Передан',t_return:'Возврат на базу',t_repair:'В ремонт',t_bau:'На объект',
+   saved:'Сохранено ✓',lager:'Склад Зальцгиттер'},
+ ro:{dash:'Prezentare',cat:'Catalog',qr:'Etichete QR',rep:'Rapoarte',
+   k_total:'Unelte',k_value:'Valoare totală',k_out:'Val. eliberat',k_rep:'Val. reparație',k_lost:'Val. pierdut',k_over:'Întârziate',
+   overdueH:'Întârziate la returnare',pruefH:'Verificare (DGUV V3)',allGood:'Totul e în regulă ✓',
+   catH:'Toate uneltele',add:'+ Unealtă',search:'Căutare…',
+   col_tool:'Unealtă',col_status:'Status',col_holder:'Deținător/loc',col_owner:'Proprietar',col_value:'Val. netă',col_inv:'WZ-nr.',
+   st_wh:'în depozit',st_out:'eliberat',st_bau:'șantier',st_rep:'reparație',st_lost:'pierdut',st_over:'întârziat',
+   qrH:'Tipărire etichete QR',qrHint:'Pentru ~1000 buc.: etichete pe rolă, generare pe loturi (corecție H).',
+   printAll:'🖨️ Tipărește tot',printFilter:'Selecție:',allC:'Toate',
+   repH:'Valoare pe muncitor / loc',repHint:'Ce vede directorul: câți € de unelte sunt la fiecare.',
+   col_person:'Muncitor / loc',col_cnt:'Buc.',col_sum:'Val. netă',export:'⬇ Export (curând)',
+   addH:'Adaugă unealtă',editH:'Editează',f_name:'Nume',f_cat:'Categorie',f_inv:'WZ-nr.',f_serial:'Serie',f_owner:'Proprietar',f_cost:'Preț net (€)',f_pruef:'Următoarea verificare',save:'Salvează',cancel:'Anulează',
+   asset_bis:'GWG imediat (<250€)',asset_gwg:'GWG (250–800€)',asset_anl:'Mijloc fix (>800€)',assetLbl:'Clasă fiscală:',
+   hist:'Istoric',close:'Închide',printQR:'🖨️ Tipărește QR',
+   t_issue:'Eliberat',t_receive:'Primit',t_transfer:'Predat',t_return:'Înapoi la bază',t_repair:'În reparație',t_bau:'La șantier',
+   saved:'Salvat ✓',lager:'Depozit Salzgitter'}
+};
+let lang=localStorage.getItem('kl_wz_lang')||'de';
+const t=k=>(TR[lang]&&TR[lang][k])||TR.de[k]||k;
+const fmt=n=>(n||0).toLocaleString('de-DE')+' €';
+
+function seed(){return{me:'e1',
+ people:[{id:'e1',name:'Ivan K.',qr:'KLE:e1'},{id:'e2',name:'Petro M.',qr:'KLE:e2'},{id:'e3',name:'Andrii S.',qr:'KLE:e3'},{id:'wh',name:'Lager Salzgitter',qr:'KLE:wh',warehouse:true}],
+ tools:[
+  {id:'t1',qr:'KLW:7f3a',inv:'WZ-001',name:'Bosch GBH 2-28 Bohrhammer',icon:'🔨',holder:'e1',status:'out',cat:'c1',owner:'LK',cost:189,hist:[{ts:Date.now()-86400000*3,type:'t_issue',who:'wh',to:'e1'}]},
+  {id:'t2',qr:'KLW:2b9c',inv:'WZ-002',name:'Hilti AG 125 Winkelschleifer',icon:'⚙️',holder:'e1',status:'out',cat:'c1',owner:'LK',cost:142,due:Date.now()-86400000,hist:[{ts:Date.now()-86400000*10,type:'t_issue',who:'wh',to:'e1'}]},
+  {id:'t3',qr:'KLW:5d1e',inv:'WZ-014',name:'Makita DDF Akkuschrauber',icon:'🔩',holder:'e2',status:'out',cat:'c1',owner:'KL',cost:169,hist:[{ts:Date.now()-86400000*6,type:'t_issue',who:'wh',to:'e2'}]},
+  {id:'t4',qr:'KLW:9a44',inv:'WZ-021',name:'Bosch GLM 50 Laser',icon:'📏',holder:'wh',status:'wh',cat:'c3',owner:'KL',cost:205,hist:[{ts:Date.now()-86400000*20,type:'t_return',who:'e3'}]},
+  {id:'t5',qr:'KLW:c6f0',inv:'WZ-030',name:'Flex Kartuschenpistole',icon:'🧴',holder:'e2',status:'out',cat:'c2',owner:'KL',cost:38,hist:[{ts:Date.now()-86400000*5,type:'t_issue',who:'wh',to:'e2'}]},
+  {id:'t6',qr:'KLW:1e77',inv:'WZ-050',name:'Bosch GST Stichsäge',icon:'🪚',holder:'b1',status:'bau',cat:'c1',owner:'Atlant',cost:118,hist:[{ts:Date.now()-86400000*4,type:'t_bau',who:'wh',to:'b1'}]},
+  {id:'t7',qr:'KLW:88ba',inv:'WZ-051',name:'Metabo Schweißgerät',icon:'🔥',holder:'wh',status:'rep',cat:'c5',owner:'LK',cost:890,hist:[{ts:Date.now()-86400000*8,type:'t_repair',who:'e1'}]},
+  {id:'t8',qr:'KLW:4c31',inv:'WZ-052',name:'Hilti TE 60 Kombihammer',icon:'🔨',holder:'wh',status:'wh',cat:'c1',owner:'LK',cost:540,hist:[{ts:Date.now()-86400000*30,type:'t_return',who:'e2'}]}
+ ]};}
+let db=load();
+function load(){try{const d=JSON.parse(localStorage.getItem(SK));if(d&&d.tools&&d.tools.length)return enrich(d);}catch(e){}const s=seed();localStorage.setItem(SK,JSON.stringify(s));return s;}
+function enrich(d){d.tools.forEach(x=>{if(x.cost==null&&DEMO_COST[x.inv]!=null)x.cost=DEMO_COST[x.inv];if(!x.owner)x.owner='KL';if(!x.status)x.status=(x.holder==='wh'?'wh':LOCATIONS.find(l=>l.id===x.holder)?'bau':'out');});return d;}
+function save(){localStorage.setItem(SK,JSON.stringify(db));}
+function holderName(id){const p=db.people.find(p=>p.id===id);if(p)return p.name;const l=LOCATIONS.find(l=>l.id===id);return l?l.name:'—';}
+function assetClass(c){if(c==null||c==='')return null;c=+c;if(c<250)return'asset_bis';if(c<=800)return'asset_gwg';return'asset_anl';}
+function toast(m){const el=$('#toast');el.textContent=m;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),2200);}
+
+function stats(){const s={total:0,value:0,out:0,rep:0,lost:0,over:0};db.tools.forEach(x=>{if(x.status==='ausgemustert')return;s.total++;const c=x.cost||0;s.value+=c;if(x.status==='out'||x.status==='bau')s.out+=c;if(x.status==='rep')s.rep+=c;if(x.status==='lost'||x.status==='verloren')s.lost+=c;if(x.due&&x.due<Date.now()&&x.status!=='wh')s.over++;});return s;}
+
+/* ---------- DASHBOARD ---------- */
+function renderDash(){
+ const s=stats();
+ const over=db.tools.filter(x=>x.due&&x.due<Date.now()&&x.status!=='wh');
+ const pruef=db.tools.filter(x=>x.next_pruef&&x.next_pruef<Date.now()+86400000*30);
+ $('#pane-dash').innerHTML=`
+  <div class="kpis">
+   <div class="kpi"><div class="kpi-t">${t('k_total')}</div><div class="kpi-v">${s.total}</div></div>
+   <div class="kpi money"><div class="kpi-t">${t('k_value')}</div><div class="kpi-v">${fmt(s.value)}</div></div>
+   <div class="kpi out"><div class="kpi-t">${t('k_out')}</div><div class="kpi-v">${fmt(s.out)}</div><div class="kpi-s">bei Mitarbeitern/Baustellen</div></div>
+   <div class="kpi rep"><div class="kpi-t">${t('k_rep')}</div><div class="kpi-v">${fmt(s.rep)}</div></div>
+   <div class="kpi lost"><div class="kpi-t">${t('k_lost')}</div><div class="kpi-v">${fmt(s.lost)}</div></div>
+   <div class="kpi"><div class="kpi-t">${t('k_over')}</div><div class="kpi-v" style="color:${s.over?'var(--acc4)':'var(--acc3)'}">${s.over}</div></div>
+  </div>
+  <div class="sec-h">⏰ ${t('overdueH')}</div>
+  ${over.length?tblTools(over):`<div class="empty">${t('allGood')}</div>`}
+  <div class="sec-h">🔧 ${t('pruefH')}</div>
+  ${pruef.length?tblTools(pruef):`<div class="empty">${t('allGood')}</div>`}`;
+}
+
+/* ---------- KATALOG ---------- */
+let catFilter='';
+function renderCat(){
+ $('#pane-cat').innerHTML=`
+  <div class="bar">
+   <input class="search" id="cat-search" placeholder="${esc(t('search'))}" value="${esc(catFilter)}">
+   <button class="btn acc" onclick="openEdit(null)">${t('add')}</button>
+  </div>
+  <div id="cat-list"></div>
+  <div class="hint">ℹ️ ${lang==='ru'?'Каталог ведёт админ. Кладовщик выдаёт/принимает, но карточки заводишь ты. Для ~1000 позиций — импорт из таблицы и автоподтяжка цены из накладных (belege) на боевой версии.':'Katalog pflegt der Admin. Für ~1000 Stück: Import aus Tabelle + Preis-Autoübernahme aus belege in der Produktivversion.'}</div>`;
+ $('#cat-search').oninput=e=>{catFilter=e.target.value;renderCatList();};
+ renderCatList();
+}
+function renderCatList(){
+ const q=catFilter.toLowerCase();
+ const arr=db.tools.filter(x=>!q||x.name.toLowerCase().includes(q)||(x.inv||'').toLowerCase().includes(q));
+ $('#cat-list').innerHTML=arr.length?tblTools(arr,true):`<div class="empty">—</div>`;
+}
+function statusPill(x){
+ const over=x.due&&x.due<Date.now()&&x.status!=='wh';
+ let m={wh:['wh','st_wh'],out:['out','st_out'],bau:['bau','st_bau'],rep:['rep','st_rep'],verloren:['over','st_lost'],lost:['over','st_lost']}[x.status]||['out','st_out'];
+ return `<span class="pill ${m[0]}">${t(m[1])}</span>`+(over?` <span class="pill over">⏰</span>`:'');
+}
+function tblTools(arr,withOwnerCost){
+ return `<div class="tbl-wrap"><table><thead><tr>
+   <th>${t('col_tool')}</th><th>${t('col_status')}</th><th>${t('col_holder')}</th>
+   ${withOwnerCost?`<th>${t('col_owner')}</th><th style="text-align:right">${t('col_value')}</th>`:''}
+  </tr></thead><tbody>
+  ${arr.map(x=>`<tr class="row" onclick="openTool('${x.id}')">
+    <td><b>${x.icon} ${esc(x.name)}</b><div style="font-size:11px;color:var(--text3);font-family:var(--fn2)">${esc(x.inv||'')}</div></td>
+    <td>${statusPill(x)}</td>
+    <td>${x.status==='wh'?t('lager'):esc(holderName(x.holder))}</td>
+    ${withOwnerCost?`<td><span class="pill ac">${esc(x.owner||'KL')}</span></td><td class="money" style="text-align:right">${fmt(x.cost)}</td>`:''}
+  </tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+/* ---------- QR ---------- */
+let qrScope='all';
+function renderQR(){
+ $('#pane-qr').innerHTML=`
+  <div class="qr-tools">
+   <b style="font-size:15px">🏷️ ${t('qrH')}</b>
+   <span style="flex:1"></span>
+   <button class="btn gh" onclick="window.print()">${t('printAll')}</button>
+  </div>
+  <div class="hint" style="margin-top:0;margin-bottom:14px">ℹ️ ${t('qrHint')}</div>
+  <div class="qr-sheet" id="qr-sheet"></div>`;
+ const box=$('#qr-sheet');
+ box.innerHTML=db.tools.map((x,n)=>`<div class="qr-cell"><div class="qbox" id="aq-${n}"></div><div class="qlbl">${esc(x.inv||'')}</div><div class="qname">${x.icon} ${esc(x.name)}</div></div>`).join('');
+ db.tools.forEach((x,n)=>{const el=$('#aq-'+n);if(el){el.innerHTML='';try{new QRCode(el,{text:x.qr,width:120,height:120,correctLevel:QRCode.CorrectLevel.H});}catch(e){}}});
+}
+
+/* ---------- BERICHTE (в €) ---------- */
+function renderRep(){
+ const grp={};
+ db.tools.forEach(x=>{if(x.status==='wh'||x.status==='ausgemustert')return;const key=x.holder;grp[key]=grp[key]||{cnt:0,sum:0};grp[key].cnt++;grp[key].sum+=(x.cost||0);});
+ const rows=Object.entries(grp).sort((a,b)=>b[1].sum-a[1].sum);
+ $('#pane-rep').innerHTML=`
+  <div class="sec-h">💶 ${t('repH')}</div>
+  <div class="tbl-wrap"><table><thead><tr><th>${t('col_person')}</th><th style="text-align:right">${t('col_cnt')}</th><th style="text-align:right">${t('col_sum')}</th></tr></thead><tbody>
+   ${rows.map(([k,v])=>`<tr><td><b>${esc(holderName(k))}</b></td><td style="text-align:right" class="money">${v.cnt}</td><td style="text-align:right" class="money">${fmt(v.sum)}</td></tr>`).join('')||`<tr><td colspan="3" class="empty">—</td></tr>`}
+  </tbody></table></div>
+  <div class="bar" style="margin-top:14px"><button class="btn gh" onclick="toast('${t('saved')}')">${t('export')}</button></div>
+  <div class="hint">ℹ️ ${t('repHint')}</div>`;
+}
+
+/* ---------- TOOL DETAIL / EDIT ---------- */
+function openSheet(html){$('#sheet-card').innerHTML=html;$('#sheet').classList.add('open');}
+function closeSheet(){$('#sheet').classList.remove('open');}
+$('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet();});
+
+function openTool(id){
+ const x=db.tools.find(t=>t.id===id);if(!x)return;
+ const ac=assetClass(x.cost);
+ const rows=[...(x.hist||[])].sort((a,b)=>b.ts-a.ts).map(h=>`<div class="tl-i"><div class="tl-t">${t(h.type)}</div><div class="tl-d">${esc(holderName(h.who))}${h.to?' → '+esc(holderName(h.to)):''} · ${new Date(h.ts).toLocaleDateString('de-DE')}</div></div>`).join('');
+ openSheet(`<div class="sh-h">${x.icon} ${esc(x.name)}</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">${statusPill(x)}<span class="pill ac">${esc(x.inv||'')}</span><span class="pill ac">${esc(x.owner||'KL')}</span><span class="pill ac money">${fmt(x.cost)}</span>${ac?`<span class="pill ac">${t(ac)}</span>`:''}</div>
+  <div class="qbox" id="det-qr" style="width:130px;height:130px;background:#fff;border-radius:10px;padding:8px;margin:4px 0 12px"></div>
+  <div class="sec-h" style="margin-top:4px">🕓 ${t('hist')}</div><div class="tl">${rows||'—'}</div>
+  <div class="bar" style="margin-top:16px">
+   <button class="btn acc" onclick="openEdit('${x.id}')">✏️ ${t('editH')}</button>
+   <button class="btn gh" onclick="window.print()">${t('printQR')}</button>
+   <button class="btn gh" onclick="closeSheet()">${t('close')}</button>
+  </div>`);
+ const el=$('#det-qr');el.innerHTML='';try{new QRCode(el,{text:x.qr,width:114,height:114,correctLevel:QRCode.CorrectLevel.H});}catch(e){}
+}
+
+function openEdit(id){
+ const x=id?db.tools.find(t=>t.id===id):{name:'',cat:'c1',inv:'',serial:'',owner:'KL',cost:'',icon:'🧰'};
+ openSheet(`<div class="sh-h">${id?t('editH'):t('addH')}</div>
+  <div class="field"><label>${t('f_name')} *</label><input id="e-name" value="${esc(x.name)}"></div>
+  <div class="field row2">
+   <div><label>${t('f_cat')}</label><select id="e-cat">${CATS.map(c=>`<option value="${c.id}" ${x.cat===c.id?'selected':''}>${c.icon} ${c.name}</option>`).join('')}</select></div>
+   <div><label>${t('f_inv')}</label><input id="e-inv" value="${esc(x.inv||'')}" placeholder="WZ-053"></div>
+  </div>
+  <div class="field row2">
+   <div><label>${t('f_owner')}</label><select id="e-owner">${OWNERS.map(o=>`<option ${x.owner===o?'selected':''}>${o}</option>`).join('')}</select></div>
+   <div><label>${t('f_serial')}</label><input id="e-serial" value="${esc(x.serial||'')}"></div>
+  </div>
+  <div class="field row2">
+   <div><label>${t('f_cost')}</label><input id="e-cost" type="number" value="${x.cost||''}" oninput="showAsset()"></div>
+   <div><label>${t('f_pruef')}</label><input id="e-pruef" type="date"></div>
+  </div>
+  <div class="assetline" id="asset-line"></div>
+  <div class="bar" style="margin-top:16px">
+   <button class="btn acc" onclick="saveTool('${id||''}')">${t('save')}</button>
+   <button class="btn gh" onclick="closeSheet()">${t('cancel')}</button>
+  </div>`);
+ showAsset();
+}
+function showAsset(){const v=$('#e-cost')?$('#e-cost').value:'';const ac=assetClass(v);$('#asset-line').innerHTML=ac?`${t('assetLbl')} <b>${t(ac)}</b>`:'';}
+function saveTool(id){
+ const name=$('#e-name').value.trim();if(!name){$('#e-name').focus();return;}
+ const cat=$('#e-cat').value,ico=(CATS.find(c=>c.id===cat)||{}).icon||'🧰';
+ const data={name,cat,inv:$('#e-inv').value.trim(),owner:$('#e-owner').value,serial:$('#e-serial').value.trim(),cost:+$('#e-cost').value||0,icon:ico};
+ if(id){Object.assign(db.tools.find(t=>t.id===id),data);}
+ else{const nid='t'+(Date.now());const tok='KLW:'+Math.abs((name+Date.now()).split('').reduce((a,c)=>((a<<5)-a+c.charCodeAt(0))|0,0)).toString(16).slice(0,4);
+   db.tools.push({id:nid,qr:tok,status:'wh',holder:'wh',hist:[{ts:Date.now(),type:'t_return',who:'wh'}],...data});}
+ save();closeSheet();refresh();toast(t('saved'));
+}
+
+/* ---------- навигация ---------- */
+function refresh(){renderDash();renderCat();renderQR();renderRep();document.querySelectorAll('[data-k]').forEach(el=>el.textContent=t(el.getAttribute('data-k')));$('#rolename').textContent=lang==='ru'?'Админ':'Admin';}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+ document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+ $('#pane-'+b.dataset.p).classList.add('on');
+});
+document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;localStorage.setItem('kl_wz_lang',lang);document.documentElement.lang=lang;document.querySelectorAll('.lang button').forEach(x=>x.classList.toggle('on',x===b));refresh();});
+const THEMES=['t4','t1','t2'];
+$('#btn-theme').onclick=()=>{let i=THEMES.indexOf(document.documentElement.getAttribute('data-theme'));i=(i+1)%THEMES.length;document.documentElement.setAttribute('data-theme',THEMES[i]);localStorage.setItem('kl_wz_theme',THEMES[i]);};
+
+document.documentElement.setAttribute('data-theme',localStorage.getItem('kl_wz_theme')||'t4');
+document.documentElement.lang=lang;
+document.querySelectorAll('.lang button').forEach(x=>x.classList.toggle('on',x.dataset.l===lang));
+refresh();
+</script>
+</body>
+</html>

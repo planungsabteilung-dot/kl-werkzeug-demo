@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="t4">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KL Werkzeug — Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg0:#eef2f8;--bg1:#fff;--bg2:#e8edf6;--bg3:#dde4f0;--line:rgba(0,0,0,.1);--line2:rgba(0,0,0,.14);--text:#0e1428;--text2:#4a5480;--text3:#9aa0c0;--acc:#2563eb;--acc2:#7c3aed;--acc3:#16a34a;--grad:linear-gradient(135deg,#2563eb,#7c3aed,#16a34a);--glow:rgba(37,99,235,.14)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{font-family:'Outfit',sans-serif;background:var(--bg0);color:var(--text);min-height:100dvh;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 90% 55% at 50% 0%,var(--glow) 0%,transparent 55%)}
+.wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:26px 18px calc(30px + env(safe-area-inset-bottom))}
+.head{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.logo{width:46px;height:46px;border-radius:12px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;color:#fff;box-shadow:0 0 20px var(--glow)}
+.h-t{font-size:22px;font-weight:900;letter-spacing:-.02em;line-height:1.1}
+.h-s{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:.05em;margin-top:2px}
+.lead{font-size:13.5px;color:var(--text2);line-height:1.55;margin:16px 2px 22px}
+.cards{display:flex;flex-direction:column;gap:13px}
+.card{display:flex;align-items:center;gap:15px;padding:20px 18px;background:var(--bg1);border:1.5px solid var(--line2);border-radius:18px;text-decoration:none;color:var(--text);transition:all .18s;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.card:active{transform:scale(.98)}
+.card:hover{border-color:var(--acc);box-shadow:0 10px 30px var(--glow)}
+.c-ic{width:56px;height:56px;border-radius:15px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;border:1px solid var(--line)}
+.c-b{flex:1;min-width:0}
+.c-t{font-size:18px;font-weight:800;line-height:1.15}
+.c-d{font-size:12.5px;color:var(--text2);margin-top:4px;line-height:1.4}
+.c-arr{font-size:26px;color:var(--text3)}
+.card.worker{border-color:rgba(22,163,74,.4)}
+.card.lager{border-color:rgba(37,99,235,.4)}
+.card.admin{border-color:rgba(124,58,237,.35)}
+.tip{margin-top:24px;padding:15px 16px;border-radius:14px;background:var(--bg2);border:1px solid var(--line);font-size:12.5px;line-height:1.65;color:var(--text2)}
+.tip b{color:var(--text)}
+.tip .step{display:flex;gap:9px;margin-top:8px}
+.tip .n{width:20px;height:20px;border-radius:50%;background:var(--acc);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.foot{margin-top:20px;text-align:center;font-size:10.5px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+  <div class="head">
+    <div class="logo">KL</div>
+    <div><div class="h-t">Werkzeug — учёт инструмента</div><div class="h-s">DEMO · пробная версия</div></div>
+  </div>
+  <div class="lead">Выбери, с какого экрана зайти. Это пробная версия для знакомства — данные тут демонстрационные и живут отдельно на каждом телефоне. Камера для сканирования QR работает по-настоящему.</div>
+
+  <div class="cards">
+    <a class="card worker" href="werkzeug.html">
+      <div class="c-ic">👷</div>
+      <div class="c-b"><div class="c-t">Рабочий</div><div class="c-d">Лёгкое приложение: «Мой инструмент» + Принять / Передать / Вернуть</div></div>
+      <div class="c-arr">›</div>
+    </a>
+    <a class="card lager" href="werkzeug_lager.html">
+      <div class="c-ic">🛠️</div>
+      <div class="c-b"><div class="c-t">Кладовщик · бригадир</div><div class="c-d">4 режима: Выдать / Принять / На объект / Передать + обзор</div></div>
+      <div class="c-arr">›</div>
+    </a>
+    <a class="card admin" href="werkzeug_admin.html">
+      <div class="c-ic">📊</div>
+      <div class="c-b"><div class="c-t">Админка (твой вид)</div><div class="c-d">Каталог, печать QR-этикеток, отчёты в евро</div></div>
+      <div class="c-arr">›</div>
+    </a>
+  </div>
+
+  <div class="tip">
+    <b>💡 Как быстро попробовать сканирование камерой:</b>
+    <div class="step"><span class="n">1</span><span>Открой <b>Админку</b> → вкладка «QR-этикетки» на одном экране (или распечатай их).</span></div>
+    <div class="step"><span class="n">2</span><span>На телефоне открой <b>Кладовщик</b> → «Выдать» → наведи камеру на любой QR-код с того экрана.</span></div>
+    <div class="step"><span class="n">3</span><span>Если камеры нет под рукой — внизу сканера есть жёлтые кнопки-заглушки: тапни вместо скана, поток тот же.</span></div>
+  </div>
+
+  <div class="foot">KL Vermietung · Werkzeug-Modul · Prototyp</div>
+</div>
+</body>
+</html>

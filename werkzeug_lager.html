@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="t4">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>KL Werkzeug — Lager / Vorarbeiter</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@master/qrcode.min.js" defer></script>
+<style>
+[data-theme="t1"]{--bg0:#07080a;--bg1:#0d0f13;--bg2:#13161d;--bg3:#1a1e28;--bg4:#222633;--line:rgba(255,255,255,.055);--line2:rgba(255,255,255,.1);--text:#e8eaf5;--text2:#8890b0;--text3:#40486a;--acc:#7c6af7;--acc2:#f7c26a;--acc3:#52e8a0;--acc4:#f76a6a;--glow:rgba(124,106,247,.22);--grad:linear-gradient(135deg,#7c6af7,#b06af7,#f7c26a);--glass:rgba(13,15,20,.85);--glass2:rgba(19,22,30,.92);--fn:'Outfit',sans-serif;--fn2:'JetBrains Mono',monospace}
+[data-theme="t2"]{--bg0:#010e0f;--bg1:#031619;--bg2:#051f25;--bg3:#082a33;--bg4:#0a3440;--line:rgba(0,220,180,.07);--line2:rgba(0,220,180,.14);--text:#c8f5ec;--text2:#60aaa0;--text3:#284a48;--acc:#00e5b4;--acc2:#7b5af7;--acc3:#00c8ff;--acc4:#ff6b6b;--glow:rgba(0,229,180,.22);--grad:linear-gradient(135deg,#00e5b4,#00c8ff,#7b5af7);--glass:rgba(3,22,25,.86);--glass2:rgba(5,31,37,.93);--fn:'Space Grotesk',sans-serif;--fn2:'JetBrains Mono',monospace}
+[data-theme="t4"]{--bg0:#eef2f8;--bg1:#fff;--bg2:#e8edf6;--bg3:#dde4f0;--bg4:#d0d9ec;--line:rgba(0,0,0,.07);--line2:rgba(0,0,0,.13);--text:#0e1428;--text2:#4a5480;--text3:#9aa0c0;--acc:#2563eb;--acc2:#7c3aed;--acc3:#16a34a;--acc4:#dc2626;--glow:rgba(37,99,235,.14);--grad:linear-gradient(135deg,#2563eb,#7c3aed,#16a34a);--glass:rgba(255,255,255,.88);--glass2:rgba(248,250,255,.95);--fn:'Outfit',sans-serif;--fn2:'JetBrains Mono',monospace}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;height:100%}
+body{font-family:var(--fn);background:var(--bg0);color:var(--text);min-height:100dvh;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 90% 55% at 50% 0%,var(--glow) 0%,transparent 55%)}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse 100% 80% at 50% 30%,#000 10%,transparent 90%);opacity:.5}
+
+.top{position:sticky;top:0;z-index:50;min-height:58px;display:flex;align-items:center;gap:10px;padding:8px 14px;padding-top:calc(8px + env(safe-area-inset-top));background:var(--glass);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#fff;box-shadow:0 0 16px var(--glow);flex-shrink:0}
+.ttl{font-size:14px;font-weight:800;line-height:1.1}
+.ttl span{display:block;font-size:9px;font-weight:500;color:var(--text3);font-family:var(--fn2);letter-spacing:.05em;margin-top:1px}
+.rolechip{margin-left:auto;display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;background:rgba(124,58,237,.13);border:1px solid rgba(124,58,237,.3);color:var(--acc2);font-size:11px;font-weight:800;font-family:var(--fn2);white-space:nowrap}
+.lang{display:flex;gap:2px;background:var(--bg3);border:1px solid var(--line2);border-radius:8px;padding:2px}
+.lang button{min-width:34px;padding:6px 8px;border-radius:6px;border:none;background:transparent;color:var(--text3);font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
+.lang button.on{background:var(--acc);color:#fff}
+.icobtn{width:38px;height:38px;border-radius:9px;border:1px solid var(--line2);background:var(--bg3);color:var(--text2);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.icobtn:active{transform:scale(.94)}
+.wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:16px 15px calc(30px + env(safe-area-inset-bottom))}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:15px}
+.kpi{background:var(--glass2);backdrop-filter:blur(12px);border:1px solid var(--line2);border-radius:13px;padding:11px 12px;cursor:pointer;transition:all .16s}
+.kpi:active{transform:scale(.97)}
+.kpi.on{border-color:var(--acc);box-shadow:0 4px 18px var(--glow)}
+.kpi-t{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);font-family:var(--fn2)}
+.kpi-v{font-size:24px;font-weight:900;letter-spacing:-.02em;margin-top:3px;line-height:1}
+.kpi.wh .kpi-v{color:var(--acc3)}.kpi.out .kpi-v{color:var(--acc)}.kpi.bau .kpi-v{color:var(--acc2)}
+.kpi.rep .kpi-v{color:var(--acc4)}.kpi.over .kpi-v{color:var(--acc4)}
+
+/* режимы */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px}
+.mode{display:flex;align-items:center;gap:12px;padding:17px 15px;border-radius:16px;background:var(--glass2);backdrop-filter:blur(12px);border:1.5px solid var(--line2);cursor:pointer;transition:all .18s;font-family:var(--fn);color:var(--text);min-height:76px}
+.mode:active{transform:scale(.97)}
+.mode:hover{box-shadow:0 8px 26px var(--glow)}
+.mode-ic{font-size:28px;flex-shrink:0}
+.mode-t{font-size:15px;font-weight:800;line-height:1.15}
+.mode.issue{border-color:rgba(37,99,235,.4)}
+.mode.take{border-color:rgba(22,163,74,.42)}
+.mode.bau{border-color:rgba(124,58,237,.35)}
+.mode.trans{border-color:rgba(247,146,30,.4)}
+
+.bar{display:flex;gap:9px;align-items:center;margin-bottom:12px}
+.search{flex:1;min-height:44px;padding:11px 13px;border-radius:11px;border:1px solid var(--line2);background:var(--glass2);color:var(--text);font-family:var(--fn);font-size:15px}
+.search:focus{outline:none;border-color:var(--acc)}
+.sec-h{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);font-family:var(--fn2);margin:4px 2px 10px;display:flex;align-items:center;gap:7px}
+.filterlbl{font-size:11px;color:var(--text3);font-family:var(--fn2);margin:0 2px 10px}
+
+.tool{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--glass2);backdrop-filter:blur(12px);border:1px solid var(--line2);border-radius:13px;margin-bottom:8px;cursor:pointer;transition:all .16s;width:100%;text-align:left;font-family:var(--fn);color:var(--text)}
+.tool:active{transform:scale(.985)}
+.tool:hover{border-color:var(--acc)}
+.tool.over{border-color:var(--acc4)}
+.tool-ic{width:44px;height:44px;border-radius:11px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1px solid var(--line)}
+.tool-b{flex:1;min-width:0}
+.tool-n{font-size:14.5px;font-weight:700;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tool-m{font-size:11px;color:var(--text3);font-family:var(--fn2);margin-top:3px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.pill{font-size:10px;font-weight:800;font-family:var(--fn2);padding:3px 8px;border-radius:20px}
+.pill.wh{background:rgba(22,163,74,.14);color:var(--acc3)}
+.pill.out{background:rgba(37,99,235,.14);color:var(--acc)}
+.pill.bau{background:rgba(124,58,237,.13);color:var(--acc2)}
+.pill.rep{background:rgba(220,38,38,.14);color:var(--acc4)}
+.pill.over{background:rgba(220,38,38,.16);color:var(--acc4)}
+.tool-arr{font-size:20px;color:var(--text3);flex-shrink:0}
+.empty{text-align:center;padding:24px 12px;color:var(--text3);font-family:var(--fn2);font-size:12px;line-height:1.6}
+
+.sheet{position:fixed;inset:0;z-index:200;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.62);backdrop-filter:blur(6px)}
+.sheet.open{display:flex;animation:fade .22s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.card{width:100%;max-width:640px;background:var(--bg1);border-top-left-radius:24px;border-top-right-radius:24px;border:1px solid var(--line2);border-bottom:none;padding:20px 18px calc(22px + env(safe-area-inset-bottom));max-height:92dvh;overflow:auto;animation:up .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.grab{width:42px;height:5px;border-radius:3px;background:var(--line2);margin:0 auto 16px}
+.sh-h{font-size:19px;font-weight:800;margin-bottom:4px;letter-spacing:-.01em}
+.sh-s{font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.4}
+.pickitem{display:flex;align-items:center;gap:12px;padding:14px;border-radius:13px;border:1px solid var(--line2);background:var(--bg2);margin-bottom:9px;cursor:pointer;width:100%;text-align:left;font-family:var(--fn);color:var(--text)}
+.pickitem:active{transform:scale(.985)}
+.pickitem:hover{border-color:var(--acc)}
+.pi-av{width:42px;height:42px;border-radius:11px;background:var(--bg4);color:var(--text);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0}
+.pi-n{font-size:15px;font-weight:700}
+.pi-s{font-size:11px;color:var(--text3);font-family:var(--fn2);margin-top:2px}
+.btn-xl{width:100%;min-height:54px;border-radius:14px;border:none;font-family:var(--fn);font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .12s}
+.btn-xl:active{transform:scale(.98)}
+.btn-xl.blue{background:var(--acc);color:#fff}.btn-xl.green{background:var(--acc3);color:#fff}.btn-xl.gray{background:var(--bg3);color:var(--text2);border:1px solid var(--line2)}
+.btn-row{display:flex;gap:10px;margin-top:10px}
+.tl{position:relative;padding-left:22px;margin-top:6px}
+.tl::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--line2)}
+.tl-i{position:relative;padding:0 0 15px 4px}
+.tl-i::before{content:'';position:absolute;left:-19px;top:3px;width:11px;height:11px;border-radius:50%;background:var(--acc);border:2px solid var(--bg1)}
+.tl-t{font-size:13.5px;font-weight:700}
+.tl-d{font-size:11px;color:var(--text3);font-family:var(--fn2);margin-top:2px}
+.tl-sig{font-size:10px;color:var(--acc3);font-family:var(--fn2);margin-top:3px;word-break:break-all}
+.qrbox{width:150px;height:150px;background:#fff;border-radius:12px;padding:10px;margin:6px auto 4px}
+
+.scan{position:fixed;inset:0;z-index:300;display:none;flex-direction:column;background:#000}
+.scan.open{display:flex}
+.scan-top{display:flex;align-items:center;gap:10px;padding:14px;padding-top:calc(14px + env(safe-area-inset-top));background:rgba(0,0,0,.55);color:#fff;position:relative;z-index:2}
+.scan-ttl{font-size:15px;font-weight:800;line-height:1.15}
+.scan-ttl small{display:block;font-size:11px;font-weight:500;color:#9aa4c0;font-family:var(--fn2)}
+.scan-cnt{padding:6px 11px;border-radius:20px;background:rgba(255,255,255,.16);color:#fff;font-size:13px;font-weight:800;font-family:var(--fn2)}
+.scan-x{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.16);color:#fff;border:none;font-size:20px;cursor:pointer}
+#reader{width:100%;flex:1;min-height:0;overflow:hidden;position:relative;background:#000}
+#reader video{object-fit:cover!important}
+.scan-hint{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:#fff;font-family:var(--fn2);font-size:12px;pointer-events:none;z-index:1;text-shadow:0 1px 4px #000}
+.scan-frame{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(64vw,240px);height:min(64vw,240px);border:3px solid rgba(255,255,255,.9);border-radius:22px;box-shadow:0 0 0 100vmax rgba(0,0,0,.35);z-index:1;pointer-events:none}
+.scan-done{padding:12px 14px calc(14px + env(safe-area-inset-bottom));background:#0b0d12}
+.scan-done .btn-xl{background:#171b24;color:#e8eaf5;border:1px solid rgba(255,255,255,.12)}
+.scan-fb{padding:10px 14px;background:#0b0d12;border-top:1px solid rgba(255,255,255,.12)}
+.scan-fb-h{color:#8890b0;font-size:10.5px;font-family:var(--fn2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+.fb-grid{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.fb-chip{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:10px 13px;border-radius:12px;background:#171b24;border:1px solid rgba(255,255,255,.1);color:#e8eaf5;font-size:13px;font-weight:600;font-family:var(--fn);cursor:pointer;min-height:46px}
+.fb-chip:active{transform:scale(.96)}
+.fb-chip .fbi{font-size:18px}
+.flash{position:fixed;inset:0;z-index:400;background:var(--acc3);opacity:0;pointer-events:none;transition:opacity .12s}
+.flash.on{opacity:.5}
+.toast{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);z-index:500;background:var(--bg1);border:1px solid var(--line2);border-radius:13px;padding:13px 18px;font-size:14px;font-weight:700;box-shadow:0 10px 40px rgba(0,0,0,.4);opacity:0;transition:all .3s;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{color:var(--acc3)}.toast.info{color:var(--acc)}.toast.warn{color:var(--acc2)}
+.note{margin-top:16px;padding:13px 14px;border-radius:12px;border:1px dashed var(--line2);background:var(--bg2);color:var(--text3);font-size:11.5px;line-height:1.6;font-family:var(--fn2)}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="bg-grid"></div>
+
+<div class="top">
+  <div class="logo">KL</div>
+  <div class="ttl">Werkzeug · Lager<span id="ttl-sub">VORARBEITER · PROTOTYP</span></div>
+  <div class="rolechip">🛠️ <span id="role-name">Vorarbeiter</span></div>
+  <div class="lang"><button data-l="de" class="on">DE</button><button data-l="ru">RU</button><button data-l="ro">RO</button></div>
+  <button class="icobtn" id="btn-theme" title="Theme">◐</button>
+  <button class="icobtn" id="btn-demo" title="Demo / QR">⚙️</button>
+</div>
+
+<div class="wrap">
+  <div class="kpis" id="kpis"></div>
+
+  <div class="modes">
+    <button class="mode issue" id="m-issue"><span class="mode-ic">📤</span><span class="mode-t" data-k="issue">Ausgeben</span></button>
+    <button class="mode take" id="m-take"><span class="mode-ic">📥</span><span class="mode-t" data-k="take">Zurücknehmen</span></button>
+    <button class="mode bau" id="m-bau"><span class="mode-ic">🏗️</span><span class="mode-t" data-k="bau">An Baustelle</span></button>
+    <button class="mode trans" id="m-trans"><span class="mode-ic">🔄</span><span class="mode-t" data-k="trans">Übergabe</span></button>
+  </div>
+
+  <div class="bar"><input class="search" id="search" placeholder="Suche… (Name, WZ-Nr.)"></div>
+  <div class="filterlbl" id="filterlbl"></div>
+  <div id="list"></div>
+
+  <div class="note" id="note"></div>
+</div>
+
+<div class="scan" id="scan">
+  <div class="scan-top">
+    <span class="scan-ttl" id="scan-ttl">Scannen<small id="scan-sub"></small></span>
+    <span class="scan-cnt" id="scan-cnt">0</span>
+    <button class="scan-x" id="scan-x">✕</button>
+  </div>
+  <div id="reader"><div class="scan-frame"></div><div class="scan-hint" id="scan-hint">…</div></div>
+  <div class="scan-done"><button class="btn-xl" id="scan-fertig">✓ <span id="fertig-t">Fertig</span></button></div>
+  <div class="scan-fb"><div class="scan-fb-h">👆 <span id="fb-h">Demo: tippen statt scannen</span></div><div class="fb-grid" id="fb-grid"></div></div>
+</div>
+
+<div class="flash" id="flash"></div>
+<div class="toast" id="toast"></div>
+<div class="sheet" id="sheet"><div class="card" id="sheet-card"></div></div>
+
+<script>
+/* =========================================================================
+   KL Werkzeug — интерфейс КЛАДОВЩИКА / бригадира (Vorarbeiter). ПРОТОТИП.
+   4 режима: Ausgeben / Zurücknehmen / An Baustelle / Übergabe.
+   Данные в localStorage (общий ключ с приложением рабочего). Офлайн.
+   ========================================================================= */
+const SK='kl_tool_demo_v1';
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* объекты (Baustellen) + склад — как справочник в коде */
+const LOCATIONS=[
+ {id:'wh',name:'Lager Salzgitter',warehouse:true,icon:'🏬'},
+ {id:'b1',name:'Baustelle Hannover, Lindenstr.',icon:'🏗️'},
+ {id:'b2',name:'Baustelle Braunschweig, Ölper',icon:'🏗️'}
+];
+
+const TR={
+ de:{issue:'Ausgeben',take:'Zurücknehmen',bau:'An Baustelle',trans:'Übergabe',
+   k_all:'Gesamt',k_wh:'Auf Lager',k_out:'Ausgegeben',k_bau:'Baustelle',k_rep:'Reparatur',k_over:'Überfällig',
+   listAll:'Alle Werkzeuge',search:'Suche… (Name, WZ-Nr.)',
+   pill_wh:'auf Lager',pill_out:'bei',pill_bau:'Baustelle',pill_rep:'Reparatur',over:'überfällig',
+   pickWorker:'An welchen Mitarbeiter ausgeben?',pickBau:'An welche Baustelle?',pickNew:'Neuer Halter',
+   scanTool:'Werkzeug scannen',fertig:'Fertig',gescannt:'gescannt',
+   issuedTo:'Ausgegeben an',takenBack:'Zurückgenommen',toBau:'An Baustelle',moved:'Übergeben an',
+   notWh:'Nicht auf Lager — erst zurücknehmen',alreadyMine:'—',
+   hist:'Verlauf',close:'Schließen',qrPrint:'QR anzeigen / drucken',cancel:'Abbrechen',
+   t_issue:'Ausgegeben',t_receive:'Angenommen',t_transfer:'Übergeben',t_return:'Zurück zur Basis',t_repair:'In Reparatur',t_bau:'An Baustelle',
+   sig:'Signatur',demoH:'Demo & QR-Codes',demoNote:'QR-Codes zum Ausdrucken/Aufkleben. Test mit zwei Handys: eines zeigt, das andere scannt.',reset:'Demo zurücksetzen',
+   scanHint:'QR-Code in den Rahmen halten',camFail:'Kamera nicht verfügbar — Tasten unten nutzen 👇',fbTool:'Werkzeuge',
+   note:'ℹ️ Prototyp. Der Vorarbeiter (= Lagerist) sieht im Hauptprogramm NUR diesen Bereich «Werkzeug». Alles andere (Kontakte, Finanzen, Fuhrpark) bleibt gesperrt. Später smarter «1 Scan → passende Aktion» möglich.',
+   filterOn:'Filter:'},
+ ru:{issue:'Выдать',take:'Принять',bau:'На объект',trans:'Передать',
+   k_all:'Всего',k_wh:'На складе',k_out:'Выдано',k_bau:'На объектах',k_rep:'Ремонт',k_over:'Просрочено',
+   listAll:'Весь инструмент',search:'Поиск… (название, WZ-№)',
+   pill_wh:'на складе',pill_out:'у',pill_bau:'объект',pill_rep:'ремонт',over:'просрочено',
+   pickWorker:'Какому сотруднику выдать?',pickBau:'На какой объект?',pickNew:'Новый держатель',
+   scanTool:'Сканировать инструмент',fertig:'Готово',gescannt:'отсканировано',
+   issuedTo:'Выдано →',takenBack:'Принято на склад',toBau:'На объект →',moved:'Передано →',
+   notWh:'Не на складе — сначала принять',alreadyMine:'—',
+   hist:'История',close:'Закрыть',qrPrint:'Показать / печать QR',cancel:'Отмена',
+   t_issue:'Выдан',t_receive:'Принят',t_transfer:'Передан',t_return:'Возврат на базу',t_repair:'В ремонт',t_bau:'На объект',
+   sig:'Подпись',demoH:'Демо и QR-коды',demoNote:'QR-коды для печати/наклейки. Тест вдвоём: один телефон показывает, другой сканирует.',reset:'Сбросить демо',
+   scanHint:'Наведи QR-код в рамку',camFail:'Камера недоступна — жми кнопки внизу 👇',fbTool:'Инструмент',
+   note:'ℹ️ Прототип. Кладовщик-бригадир (Vorarbeiter) в основном приложении видит ТОЛЬКО раздел «Инструмент». Всё остальное (контрагенты, финансы, автопарк) закрыто. Позже можно умный режим «1 скан → нужное действие».',
+   filterOn:'Фильтр:'},
+ ro:{issue:'Eliberează',take:'Preia înapoi',bau:'La șantier',trans:'Predă',
+   k_all:'Total',k_wh:'În depozit',k_out:'Eliberate',k_bau:'Șantier',k_rep:'Reparație',k_over:'Întârziate',
+   listAll:'Toate uneltele',search:'Căutare… (nume, WZ-nr.)',
+   pill_wh:'în depozit',pill_out:'la',pill_bau:'șantier',pill_rep:'reparație',over:'întârziat',
+   pickWorker:'Cărui muncitor eliberezi?',pickBau:'La ce șantier?',pickNew:'Nou deținător',
+   scanTool:'Scanează unealta',fertig:'Gata',gescannt:'scanate',
+   issuedTo:'Eliberat →',takenBack:'Primit în depozit',toBau:'La șantier →',moved:'Predat →',
+   notWh:'Nu e în depozit — preia mai întâi',alreadyMine:'—',
+   hist:'Istoric',close:'Închide',qrPrint:'Arată / tipărește QR',cancel:'Anulează',
+   t_issue:'Eliberat',t_receive:'Primit',t_transfer:'Predat',t_return:'Înapoi la bază',t_repair:'În reparație',t_bau:'La șantier',
+   sig:'Semnătură',demoH:'Demo & coduri QR',demoNote:'Coduri QR de tipărit/lipit. Test cu două telefoane.',reset:'Resetează demo',
+   scanHint:'Ține codul QR în cadru',camFail:'Camera indisponibilă — folosește butoanele 👇',fbTool:'Unelte',
+   note:'ℹ️ Prototip. Vorarbeiter (=magazioner) vede în programul principal DOAR secțiunea «Unelte».',
+   filterOn:'Filtru:'}
+};
+let lang=localStorage.getItem('kl_wz_lang')||'de';
+const t=k=>(TR[lang]&&TR[lang][k])||TR.de[k]||k;
+
+function seed(){return{
+ me:'e1',
+ people:[
+  {id:'e1',name:'Ivan K.',qr:'KLE:e1'},{id:'e2',name:'Petro M.',qr:'KLE:e2'},
+  {id:'e3',name:'Andrii S.',qr:'KLE:e3'},{id:'wh',name:'Lager Salzgitter',qr:'KLE:wh',warehouse:true}
+ ],
+ tools:[
+  {id:'t1',qr:'KLW:7f3a',inv:'WZ-001',name:'Bosch GBH 2-28 Bohrhammer',icon:'🔨',holder:'e1',status:'out',hist:[{ts:Date.now()-86400000*3,type:'t_issue',who:'wh',to:'e1'}]},
+  {id:'t2',qr:'KLW:2b9c',inv:'WZ-002',name:'Hilti AG 125 Winkelschleifer',icon:'⚙️',holder:'e1',status:'out',due:Date.now()-86400000,hist:[{ts:Date.now()-86400000*10,type:'t_issue',who:'wh',to:'e1'}]},
+  {id:'t3',qr:'KLW:5d1e',inv:'WZ-014',name:'Makita DDF Akkuschrauber',icon:'🔩',holder:'e2',status:'out',hist:[{ts:Date.now()-86400000*6,type:'t_issue',who:'wh',to:'e2'}]},
+  {id:'t4',qr:'KLW:9a44',inv:'WZ-021',name:'Bosch GLM 50 Laser-Entfernungsmesser',icon:'📏',holder:'wh',status:'wh',hist:[{ts:Date.now()-86400000*20,type:'t_return',who:'e3'}]},
+  {id:'t5',qr:'KLW:c6f0',inv:'WZ-030',name:'Flex Kartuschenpistole',icon:'🧴',holder:'e2',status:'out',hist:[{ts:Date.now()-86400000*5,type:'t_issue',who:'wh',to:'e2'}]},
+  {id:'t6',qr:'KLW:1e77',inv:'WZ-050',name:'Bosch GST Stichsäge',icon:'🪚',holder:'b1',status:'bau',hist:[{ts:Date.now()-86400000*4,type:'t_bau',who:'wh',to:'b1'}]},
+  {id:'t7',qr:'KLW:88ba',inv:'WZ-051',name:'Metabo Schweißgerät',icon:'🔥',holder:'wh',status:'rep',hist:[{ts:Date.now()-86400000*8,type:'t_repair',who:'e1'}]},
+  {id:'t8',qr:'KLW:4c31',inv:'WZ-052',name:'Hilti TE 60 Kombihammer',icon:'🔨',holder:'wh',status:'wh',hist:[{ts:Date.now()-86400000*30,type:'t_return',who:'e2'}]}
+ ]
+};}
+let db=load();
+function load(){try{const d=JSON.parse(localStorage.getItem(SK));if(d&&d.tools&&d.tools.length)return migrate(d);}catch(e){}const s=seed();localStorage.setItem(SK,JSON.stringify(s));return s;}
+function migrate(d){d.tools.forEach(x=>{if(!x.status){const p=db_holderKind(x.holder);x.status=p;}});return d;}
+function db_holderKind(id){if(id==='wh')return'wh';if(LOCATIONS.find(l=>l.id===id))return'bau';return'out';}
+function save(){localStorage.setItem(SK,JSON.stringify(db));}
+function holder(id){return db.people.find(p=>p.id===id)||LOCATIONS.find(l=>l.id===id)||{name:'—'};}
+const people=()=>db.people.filter(p=>!p.warehouse);
+const bau=()=>LOCATIONS.filter(l=>!l.warehouse);
+
+/* ---- feedback ---- */
+let AC;function beep(f=900){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;o.connect(g);g.connect(AC.destination);g.gain.value=.13;o.start();o.stop(AC.currentTime+.09);}catch(e){}}
+function buzz(ms=40){try{navigator.vibrate&&navigator.vibrate(ms);}catch(e){}}
+function flash(){const f=$('#flash');f.classList.add('on');setTimeout(()=>f.classList.remove('on'),130);}
+function ok(){flash();beep();buzz();}
+function toast(m,c='ok'){const el=$('#toast');el.className='toast '+c;el.textContent=m;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),2400);}
+function sigHash(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return('0000000'+(h>>>0).toString(16)).slice(-8);}
+
+/* ---- статистика/фильтр ---- */
+let filter='all';
+function stat(){const s={all:db.tools.length,wh:0,out:0,bau:0,rep:0,over:0};db.tools.forEach(x=>{if(x.status==='rep')s.rep++;else if(x.status==='bau')s.bau++;else if(x.status==='wh')s.wh++;else s.out++;if(x.due&&x.due<Date.now()&&x.status!=='wh')s.over++;});return s;}
+
+function render(){
+ $('#role-name').textContent=t('issue')&&(lang==='ru'?'Бригадир':lang==='ro'?'Șef echipă':'Vorarbeiter');
+ $('#note').textContent=t('note');$('#search').placeholder=t('search');
+ document.querySelectorAll('[data-k]').forEach(el=>el.textContent=t(el.getAttribute('data-k')));
+ $('#fertig-t').textContent=t('fertig');
+ // KPI
+ const s=stat();
+ const tiles=[['all','k_all',''],['wh','k_wh','wh'],['out','k_out','out'],['bau','k_bau','bau'],['rep','k_rep','rep'],['over','k_over','over']];
+ $('#kpis').innerHTML=tiles.map(([k,lbl,cls])=>`<div class="kpi ${cls} ${filter===k?'on':''}" onclick="setFilter('${k}')"><div class="kpi-t">${t(lbl)}</div><div class="kpi-v">${s[k]}</div></div>`).join('');
+ renderList();
+}
+function setFilter(k){filter=k;render();}
+function renderList(){
+ const q=($('#search').value||'').toLowerCase();
+ let arr=db.tools.filter(x=>{
+   if(filter==='wh'&&x.status!=='wh')return false;
+   if(filter==='out'&&x.status!=='out')return false;
+   if(filter==='bau'&&x.status!=='bau')return false;
+   if(filter==='rep'&&x.status!=='rep')return false;
+   if(filter==='over'&&!(x.due&&x.due<Date.now()&&x.status!=='wh'))return false;
+   if(q&&!(x.name.toLowerCase().includes(q)||x.inv.toLowerCase().includes(q)))return false;
+   return true;
+ });
+ $('#filterlbl').textContent=filter==='all'?t('listAll'):(t('filterOn')+' '+t('k_'+filter));
+ $('#list').innerHTML=arr.length?arr.map(toolCard).join(''):`<div class="empty">—</div>`;
+}
+function toolCard(x){
+ const over=x.due&&x.due<Date.now()&&x.status!=='wh';
+ let pill;
+ if(x.status==='wh')pill=`<span class="pill wh">${t('pill_wh')}</span>`;
+ else if(x.status==='bau')pill=`<span class="pill bau">🏗️ ${esc(holder(x.holder).name.replace('Baustelle ',''))}</span>`;
+ else if(x.status==='rep')pill=`<span class="pill rep">${t('pill_rep')}</span>`;
+ else pill=`<span class="pill out">${t('pill_out')} ${esc(holder(x.holder).name)}</span>`;
+ if(over)pill+=` <span class="pill over">⏰ ${t('over')}</span>`;
+ return `<button class="tool ${over?'over':''}" onclick="openHist('${x.id}')"><div class="tool-ic">${x.icon}</div>
+  <div class="tool-b"><div class="tool-n">${esc(x.name)}</div><div class="tool-m">${pill}<span>${esc(x.inv)}</span></div></div>
+  <div class="tool-arr">›</div></button>`;
+}
+
+/* ---- модалка ---- */
+function openSheet(html){$('#sheet-card').innerHTML='<div class="grab"></div>'+html;$('#sheet').classList.add('open');}
+function closeSheet(){$('#sheet').classList.remove('open');}
+$('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet();});
+
+/* ================= РЕЖИМЫ ================= */
+let ctx={mode:null,target:null,count:0};
+$('#m-issue').onclick=()=>pickThen('pickWorker',people(),w=>startScan('issue',w.id));
+$('#m-bau').onclick=()=>pickThen('pickBau',bau(),b=>startScan('bau',b.id));
+$('#m-take').onclick=()=>startScan('take',null);
+$('#m-trans').onclick=()=>startScan('trans',null);
+
+function pickThen(titleKey,items,cb){
+ openSheet(`<div class="sh-h">${t(titleKey)}</div><div class="sh-s"></div>
+  ${items.map(it=>`<button class="pickitem" data-id="${it.id}"><div class="pi-av">${(it.icon||it.name[0])}</div><div><div class="pi-n">${esc(it.name)}</div></div></button>`).join('')}
+  <div class="btn-row"><button class="btn-xl gray" onclick="closeSheet()">${t('cancel')}</button></div>`);
+ $('#sheet-card').querySelectorAll('.pickitem').forEach(b=>b.onclick=()=>{const it=items.find(i=>i.id===b.dataset.id);closeSheet();cb(it);});
+}
+
+function startScan(mode,target){
+ ctx={mode,target,count:0};
+ const subMap={issue:t('issuedTo')+' '+holder(target||'').name,bau:t('toBau')+' '+holder(target||'').name,take:t('takenBack'),trans:t('trans')};
+ $('#scan-ttl').firstChild.textContent=t('scanTool');
+ $('#scan-sub').textContent=subMap[mode]||'';
+ $('#scan-cnt').textContent='0';
+ buildFallback(mode);
+ $('#scan').classList.add('open');
+ startCamera();
+}
+let qrScanner=null,scanBusy=false;
+function startCamera(){
+ if(typeof Html5Qrcode==='undefined'){$('#scan-hint').textContent=t('camFail');return;}
+ try{qrScanner=new Html5Qrcode('reader',{verbose:false});
+  qrScanner.start({facingMode:'environment'},{fps:10,qrbox:{width:220,height:220}},txt=>onDecode(txt),()=>{})
+   .then(()=>$('#scan-hint').textContent=t('scanHint')).catch(()=>$('#scan-hint').textContent=t('camFail'));
+ }catch(e){$('#scan-hint').textContent=t('camFail');}
+}
+function closeScanner(){$('#scan').classList.remove('open');if(qrScanner){qrScanner.stop().then(()=>{qrScanner.clear();qrScanner=null;}).catch(()=>qrScanner=null);}}
+$('#scan-x').onclick=()=>{closeScanner();render();};
+$('#scan-fertig').onclick=()=>{closeScanner();render();if(ctx.count)toast('✓ '+ctx.count+' '+t('gescannt'),'ok');};
+function onDecode(txt){if(scanBusy)return;scanBusy=true;setTimeout(()=>scanBusy=false,1100);handleCode(txt);}
+function handleCode(txt){
+ txt=(txt||'').trim();
+ const x=db.tools.find(tt=>tt.qr===txt||tt.id===txt);
+ if(!x){toast('QR ?','warn');return;}
+ applyMode(x);
+}
+function applyMode(x){
+ const m=ctx.mode;
+ if(m==='issue'){
+   if(x.status!=='wh'){toast(t('notWh'),'warn');return;}
+   x.holder=ctx.target;x.status='out';x.hist.push({ts:Date.now(),type:'t_issue',who:'wh',to:ctx.target,by:db.me});
+   done(x,t('issuedTo')+' '+holder(ctx.target).name);
+ }else if(m==='bau'){
+   if(x.status==='rep'){toast(t('pill_rep'),'warn');return;}
+   x.holder=ctx.target;x.status='bau';x.hist.push({ts:Date.now(),type:'t_bau',who:db.me,to:ctx.target});
+   done(x,t('toBau')+' '+holder(ctx.target).name);
+ }else if(m==='take'){
+   x.holder='wh';x.status='wh';delete x.due;x.hist.push({ts:Date.now(),type:'t_return',who:db.me});
+   done(x,t('takenBack'));
+ }else if(m==='trans'){
+   // передать: спросить нового держателя (человек или объект)
+   closeScannerKeepCtx();chooseNew(x);
+ }
+}
+function done(x,msg){ctx.count++;$('#scan-cnt').textContent=ctx.count;save();ok();toast(msg,'ok');buildFallback(ctx.mode);}
+function closeScannerKeepCtx(){$('#scan').classList.remove('open');if(qrScanner){qrScanner.stop().then(()=>{qrScanner.clear();qrScanner=null;}).catch(()=>qrScanner=null);}}
+function chooseNew(x){
+ const items=[...people(),...bau()];
+ openSheet(`<div class="sh-h">${t('pickNew')}</div>
+  <div class="tool" style="cursor:default;margin-bottom:12px"><div class="tool-ic">${x.icon}</div><div class="tool-b"><div class="tool-n">${esc(x.name)}</div><div class="tool-m"><span>${esc(x.inv)}</span></div></div></div>
+  ${items.map(it=>`<button class="pickitem" data-id="${it.id}"><div class="pi-av">${(it.icon||it.name[0])}</div><div class="pi-n">${esc(it.name)}</div></button>`).join('')}
+  <div class="btn-row"><button class="btn-xl gray" onclick="closeSheet()">${t('cancel')}</button></div>`);
+ $('#sheet-card').querySelectorAll('.pickitem').forEach(b=>b.onclick=()=>{
+   const it=items.find(i=>i.id===b.dataset.id);const isBau=!!LOCATIONS.find(l=>l.id===it.id);
+   x.holder=it.id;x.status=isBau?'bau':'out';x.hist.push({ts:Date.now(),type:isBau?'t_bau':'t_transfer',who:db.me,to:it.id});
+   save();ok();closeSheet();render();toast(t('moved')+' '+it.name,'info');
+ });
+}
+
+/* заглушки для теста без камеры */
+function buildFallback(mode){
+ let arr;
+ if(mode==='issue')arr=db.tools.filter(x=>x.status==='wh');
+ else if(mode==='take')arr=db.tools.filter(x=>x.status==='out'||x.status==='bau');
+ else if(mode==='bau')arr=db.tools.filter(x=>x.status==='wh'||x.status==='out');
+ else arr=db.tools.filter(x=>x.status!=='rep');
+ $('#fb-h').textContent=t('fbTool');
+ $('#fb-grid').innerHTML=arr.length?arr.map(x=>`<button class="fb-chip" onclick="handleCode('${x.qr}')"><span class="fbi">${x.icon}</span>${esc(x.inv)}</button>`).join(''):'<span style="color:#556;font-size:12px">—</span>';
+}
+
+/* ---- история + печать QR ---- */
+function openHist(id){
+ const x=db.tools.find(t=>t.id===id);if(!x)return;
+ const rows=[...x.hist].sort((a,b)=>b.ts-a.ts).map(h=>{
+  const who=holder(h.who).name+(h.to?(' → '+holder(h.to).name):'');
+  return `<div class="tl-i"><div class="tl-t">${t(h.type)}</div><div class="tl-d">${esc(who)} · ${new Date(h.ts).toLocaleString(lang==='de'?'de-DE':lang==='ru'?'ru-RU':'ro-RO',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>${h.sig?`<div class="tl-sig">✍️ ${t('sig')}: ${esc(h.sig)}${h.hash?' · #'+h.hash:''}</div>`:''}</div>`;
+ }).join('');
+ openSheet(`<div class="sh-h">${x.icon} ${esc(x.name)}</div><div class="sh-s">${esc(x.inv)} · QR ${esc(x.qr)}</div>
+  <div class="qrbox" id="detail-qr"></div>
+  <div class="sec-h">🕓 ${t('hist')}</div><div class="tl">${rows}</div>
+  <div class="btn-row"><button class="btn-xl gray" onclick="window.print()">🖨️ ${t('qrPrint')}</button><button class="btn-xl gray" onclick="closeSheet()">${t('close')}</button></div>`);
+ const el=$('#detail-qr');el.innerHTML='';try{new QRCode(el,{text:x.qr,width:130,height:130,correctLevel:QRCode.CorrectLevel.H});}catch(e){}
+}
+
+/* ---- демо/QR ---- */
+$('#btn-demo').onclick=()=>{
+ openSheet(`<div class="sh-h">${t('demoH')}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px" id="demo-body"></div>
+  <div class="sh-s" style="margin:14px 0 10px">${t('demoNote')}</div>
+  <div class="btn-row"><button class="btn-xl gray" onclick="resetDemo()">↺ ${t('reset')}</button><button class="btn-xl gray" onclick="closeSheet()">${t('close')}</button></div>`);
+ db.tools.forEach((x,n)=>{});
+ const body=$('#demo-body');
+ body.innerHTML=db.tools.map((x,n)=>`<div style="background:#fff;border-radius:12px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px"><div id="dq-${n}" style="width:110px;height:110px"></div><div style="font-size:10px;font-weight:700;color:#0e1428;text-align:center;font-family:var(--fn2)">${x.icon} ${esc(x.inv)}</div></div>`).join('');
+ db.tools.forEach((x,n)=>{const el=$('#dq-'+n);if(el){el.innerHTML='';try{new QRCode(el,{text:x.qr,width:110,height:110,correctLevel:QRCode.CorrectLevel.H});}catch(e){}}});
+};
+function resetDemo(){localStorage.removeItem(SK);db=load();filter='all';closeSheet();render();toast('✓','ok');}
+
+/* ---- язык/тема/поиск ---- */
+document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;localStorage.setItem('kl_wz_lang',lang);document.documentElement.lang=lang;document.querySelectorAll('.lang button').forEach(x=>x.classList.toggle('on',x===b));render();});
+const THEMES=['t4','t1','t2'];
+$('#btn-theme').onclick=()=>{let i=THEMES.indexOf(document.documentElement.getAttribute('data-theme'));i=(i+1)%THEMES.length;document.documentElement.setAttribute('data-theme',THEMES[i]);localStorage.setItem('kl_wz_theme',THEMES[i]);};
+$('#search').oninput=renderList;
+
+document.documentElement.setAttribute('data-theme',localStorage.getItem('kl_wz_theme')||'t4');
+document.documentElement.lang=lang;
+document.querySelectorAll('.lang button').forEach(x=>x.classList.toggle('on',x.dataset.l===lang));
+render();
+</script>
+</body>
+</html>

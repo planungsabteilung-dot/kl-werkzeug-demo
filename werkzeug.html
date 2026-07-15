@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="t4">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>KL Werkzeug — Mitarbeiter</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Сканер QR (камера) и генерация QR для демо-меток -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@master/qrcode.min.js" defer></script>
+<style>
+/* ---- Темы (взяты 1:1 из driver.html для полной консистентности) ---- */
+[data-theme="t1"]{--bg0:#07080a;--bg1:#0d0f13;--bg2:#13161d;--bg3:#1a1e28;--bg4:#222633;--line:rgba(255,255,255,.055);--line2:rgba(255,255,255,.1);--text:#e8eaf5;--text2:#8890b0;--text3:#40486a;--acc:#7c6af7;--acc2:#f7c26a;--acc3:#52e8a0;--acc4:#f76a6a;--glow:rgba(124,106,247,.22);--grad:linear-gradient(135deg,#7c6af7,#b06af7,#f7c26a);--glass:rgba(13,15,20,.85);--glass2:rgba(19,22,30,.92);--fn:'Outfit',sans-serif;--fn2:'JetBrains Mono',monospace}
+[data-theme="t2"]{--bg0:#010e0f;--bg1:#031619;--bg2:#051f25;--bg3:#082a33;--bg4:#0a3440;--line:rgba(0,220,180,.07);--line2:rgba(0,220,180,.14);--text:#c8f5ec;--text2:#60aaa0;--text3:#284a48;--acc:#00e5b4;--acc2:#7b5af7;--acc3:#00c8ff;--acc4:#ff6b6b;--glow:rgba(0,229,180,.22);--grad:linear-gradient(135deg,#00e5b4,#00c8ff,#7b5af7);--glass:rgba(3,22,25,.86);--glass2:rgba(5,31,37,.93);--fn:'Space Grotesk',sans-serif;--fn2:'JetBrains Mono',monospace}
+[data-theme="t4"]{--bg0:#eef2f8;--bg1:#fff;--bg2:#e8edf6;--bg3:#dde4f0;--bg4:#d0d9ec;--line:rgba(0,0,0,.07);--line2:rgba(0,0,0,.13);--text:#0e1428;--text2:#4a5480;--text3:#9aa0c0;--acc:#2563eb;--acc2:#7c3aed;--acc3:#16a34a;--acc4:#dc2626;--glow:rgba(37,99,235,.14);--grad:linear-gradient(135deg,#2563eb,#7c3aed,#16a34a);--glass:rgba(255,255,255,.88);--glass2:rgba(248,250,255,.95);--fn:'Outfit',sans-serif;--fn2:'JetBrains Mono',monospace}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;height:100%}
+body{font-family:var(--fn);background:var(--bg0);color:var(--text);min-height:100dvh;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 90% 55% at 50% 0%,var(--glow) 0%,transparent 55%),radial-gradient(ellipse 70% 50% at 50% 100%,rgba(247,194,106,.05) 0%,transparent 50%)}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse 100% 80% at 50% 30%,#000 10%,transparent 90%);opacity:.5}
+
+/* topbar */
+.top{position:sticky;top:0;z-index:50;min-height:58px;display:flex;align-items:center;gap:10px;padding:8px 14px;padding-top:calc(8px + env(safe-area-inset-top));background:var(--glass);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#fff;box-shadow:0 0 16px var(--glow);flex-shrink:0}
+.ttl{font-size:14px;font-weight:800;line-height:1.1}
+.ttl span{display:block;font-size:9px;font-weight:500;color:var(--text3);font-family:var(--fn2);letter-spacing:.05em;margin-top:1px}
+.off{margin-left:auto;display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:8px;background:rgba(82,232,160,.14);border:1px solid rgba(82,232,160,.35);color:#0e8a47;font-size:11px;font-weight:800;font-family:var(--fn2);white-space:nowrap}
+.lang{display:flex;gap:2px;background:var(--bg3);border:1px solid var(--line2);border-radius:8px;padding:2px}
+.lang button{min-width:34px;padding:6px 8px;border-radius:6px;border:none;background:transparent;color:var(--text3);font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
+.lang button.on{background:var(--acc);color:#fff}
+.icobtn{width:38px;height:38px;border-radius:9px;border:1px solid var(--line2);background:var(--bg3);color:var(--text2);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.icobtn:active{transform:scale(.94)}
+
+.wrap{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:16px 15px calc(30px + env(safe-area-inset-bottom))}
+
+/* «кто я» */
+.who{display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--glass2);backdrop-filter:blur(12px);border:1px solid var(--line2);border-radius:14px;margin-bottom:13px}
+.who-av{width:42px;height:42px;border-radius:11px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0}
+.who-b{flex:1;min-width:0}
+.who-n{font-size:15px;font-weight:800}
+.who-r{font-size:11px;color:var(--text3);font-family:var(--fn2);margin-top:1px}
+.who-sw{padding:8px 11px;border-radius:9px;background:var(--bg3);border:1px solid var(--line2);color:var(--text2);font-size:11px;font-weight:700;cursor:pointer}
+
+/* счётчик «мой инструмент» */
+.count{display:flex;align-items:baseline;gap:8px;margin:4px 2px 15px}
+.count b{font-size:30px;font-weight:900;color:var(--acc);letter-spacing:-.02em}
+.count span{font-size:14px;color:var(--text2);font-weight:600}
+
+/* 3 большие кнопки действий */
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px}
+.act{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:20px 12px;border-radius:18px;background:var(--glass2);backdrop-filter:blur(12px);border:1.5px solid var(--line2);cursor:pointer;transition:all .18s;font-family:var(--fn);min-height:118px;position:relative;color:var(--text)}
+.act:active{transform:scale(.97)}
+.act:hover{box-shadow:0 10px 30px var(--glow)}
+.act-ico{font-size:36px;line-height:1}
+.act-t{font-size:15px;font-weight:800;text-align:center;line-height:1.15}
+.act.recv{border-color:rgba(22,163,74,.45);background:linear-gradient(135deg,rgba(22,163,74,.14),rgba(22,163,74,.03));grid-column:span 2;flex-direction:row;min-height:auto;padding:18px;gap:14px}
+.act.recv .act-ico{font-size:30px}
+.act.give{border-color:rgba(37,99,235,.4)}
+.act.back{border-color:rgba(124,58,237,.35)}
+.act-badge{position:absolute;top:10px;right:12px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--acc4);color:#fff;font-size:12px;font-weight:800;font-family:var(--fn2);display:flex;align-items:center;justify-content:center}
+
+/* секция-заголовок */
+.sec-h{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);font-family:var(--fn2);margin:6px 2px 10px;display:flex;align-items:center;gap:7px}
+
+/* карточки инструмента */
+.tool{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--glass2);backdrop-filter:blur(12px);border:1px solid var(--line2);border-radius:14px;margin-bottom:9px;cursor:pointer;transition:all .18s;width:100%;text-align:left;font-family:var(--fn);color:var(--text)}
+.tool:active{transform:scale(.985)}
+.tool:hover{border-color:var(--acc)}
+.tool.over{border-color:var(--acc4);background:linear-gradient(135deg,rgba(220,38,38,.09),transparent)}
+.tool-ic{width:46px;height:46px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:1px solid var(--line)}
+.tool-b{flex:1;min-width:0}
+.tool-n{font-size:15px;font-weight:700;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tool-m{font-size:11px;color:var(--text3);font-family:var(--fn2);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{font-size:10px;font-weight:800;font-family:var(--fn2);padding:3px 8px;border-radius:20px}
+.pill.mine{background:rgba(37,99,235,.14);color:var(--acc)}
+.pill.wh{background:rgba(22,163,74,.14);color:var(--acc3)}
+.pill.other{background:rgba(124,58,237,.13);color:var(--acc2)}
+.pill.rep{background:rgba(220,38,38,.14);color:var(--acc4)}
+.pill.over{background:rgba(220,38,38,.16);color:var(--acc4)}
+.tool-arr{font-size:20px;color:var(--text3);flex-shrink:0}
+.empty{text-align:center;padding:26px 12px;color:var(--text3);font-family:var(--fn2);font-size:12px;line-height:1.6}
+
+/* входящие передачи */
+.inbox{background:linear-gradient(135deg,rgba(22,163,74,.09),rgba(22,163,74,.02));border:1.5px solid rgba(22,163,74,.3);border-radius:16px;padding:14px;margin-bottom:15px}
+.inbox-h{font-size:12px;font-weight:800;letter-spacing:.03em;color:var(--acc3);margin-bottom:11px;display:flex;align-items:center;gap:7px}
+.inrow{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--line)}
+.inrow:last-child{border-bottom:none;padding-bottom:0}
+.inrow-b{flex:1;min-width:0}
+.inrow-n{font-size:14px;font-weight:700}
+.inrow-d{font-size:11px;color:var(--text2);margin-top:2px}
+.btn-accept{padding:11px 15px;border-radius:11px;border:none;background:var(--acc3);color:#fff;font-size:13px;font-weight:800;font-family:var(--fn);cursor:pointer;flex-shrink:0;min-height:44px}
+.btn-accept:active{transform:scale(.96)}
+
+.note{margin-top:18px;padding:13px 14px;border-radius:12px;border:1px dashed var(--line2);background:var(--bg2);color:var(--text3);font-size:11.5px;line-height:1.6;font-family:var(--fn2)}
+
+/* нижние модалки */
+.sheet{position:fixed;inset:0;z-index:200;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.62);backdrop-filter:blur(6px)}
+.sheet.open{display:flex;animation:fade .22s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.card{width:100%;max-width:540px;background:var(--bg1);border-top-left-radius:24px;border-top-right-radius:24px;border:1px solid var(--line2);border-bottom:none;padding:20px 18px calc(22px + env(safe-area-inset-bottom));max-height:92dvh;overflow:auto;animation:up .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.grab{width:42px;height:5px;border-radius:3px;background:var(--line2);margin:0 auto 16px}
+.sh-h{font-size:19px;font-weight:800;margin-bottom:4px;letter-spacing:-.01em}
+.sh-s{font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.4}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;color:var(--text2);font-weight:600;margin-bottom:6px}
+.field input,.field textarea{width:100%;min-height:46px;padding:11px 13px;border-radius:11px;border:1px solid var(--line2);background:var(--bg2);color:var(--text);font-family:var(--fn);font-size:15px}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--glow)}
+.proto{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:13px;font-size:12.5px;line-height:1.6;color:var(--text2);margin-bottom:15px}
+.btn-xl{width:100%;min-height:56px;border-radius:14px;border:none;font-family:var(--fn);font-size:17px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .12s}
+.btn-xl:active{transform:scale(.98)}
+.btn-xl.green{background:var(--acc3);color:#fff}
+.btn-xl.blue{background:var(--acc);color:#fff}
+.btn-xl.gray{background:var(--bg3);color:var(--text2);border:1px solid var(--line2)}
+.btn-row{display:flex;gap:10px;margin-top:10px}
+.btn-row .btn-xl{font-size:15px;min-height:52px}
+
+/* выбор состояния при возврате */
+.zust{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:6px}
+.zbtn{min-height:88px;border-radius:16px;border:2px solid var(--line2);background:var(--bg2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;font-family:var(--fn);font-size:15px;font-weight:800;color:var(--text)}
+.zbtn .zi{font-size:30px}
+.zbtn.ok.on{border-color:var(--acc3);background:rgba(22,163,74,.12);color:var(--acc3)}
+.zbtn.bad.on{border-color:var(--acc2);background:rgba(124,58,237,.1);color:var(--acc2)}
+
+/* выбор получателя */
+.emp{display:flex;align-items:center;gap:12px;padding:14px;border-radius:13px;border:1px solid var(--line2);background:var(--bg2);margin-bottom:9px;cursor:pointer;width:100%;text-align:left;font-family:var(--fn);color:var(--text)}
+.emp:active{transform:scale(.985)}
+.emp-av{width:40px;height:40px;border-radius:11px;background:var(--bg4);color:var(--text);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0}
+.emp-n{font-size:15px;font-weight:700}
+
+/* лента истории */
+.tl{position:relative;padding-left:22px;margin-top:6px}
+.tl::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--line2)}
+.tl-i{position:relative;padding:0 0 15px 4px}
+.tl-i::before{content:'';position:absolute;left:-19px;top:3px;width:11px;height:11px;border-radius:50%;background:var(--acc);border:2px solid var(--bg1)}
+.tl-t{font-size:13.5px;font-weight:700}
+.tl-d{font-size:11px;color:var(--text3);font-family:var(--fn2);margin-top:2px}
+.tl-sig{font-size:10px;color:var(--acc3);font-family:var(--fn2);margin-top:3px;word-break:break-all}
+
+/* сканер */
+.scan{position:fixed;inset:0;z-index:300;display:none;flex-direction:column;background:#000}
+.scan.open{display:flex}
+.scan-top{display:flex;align-items:center;gap:10px;padding:14px;padding-top:calc(14px + env(safe-area-inset-top));background:rgba(0,0,0,.55);color:#fff;position:relative;z-index:2}
+.scan-ttl{font-size:16px;font-weight:800}
+.scan-x{margin-left:auto;width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.16);color:#fff;border:none;font-size:20px;cursor:pointer}
+#reader{width:100%;flex:1;min-height:0;overflow:hidden;position:relative;background:#000}
+#reader video{object-fit:cover!important}
+.scan-hint{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:#fff;font-family:var(--fn2);font-size:12px;pointer-events:none;z-index:1;text-shadow:0 1px 4px #000}
+.scan-frame{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(64vw,240px);height:min(64vw,240px);border:3px solid rgba(255,255,255,.9);border-radius:22px;box-shadow:0 0 0 100vmax rgba(0,0,0,.35);z-index:1;pointer-events:none}
+.scan-fb{padding:12px 14px calc(14px + env(safe-area-inset-bottom));background:#0b0d12;border-top:1px solid rgba(255,255,255,.12)}
+.scan-fb-h{color:#8890b0;font-size:10.5px;font-family:var(--fn2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+.fb-grid{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.fb-chip{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:10px 13px;border-radius:12px;background:#171b24;border:1px solid rgba(255,255,255,.1);color:#e8eaf5;font-size:13px;font-weight:600;font-family:var(--fn);cursor:pointer;min-height:46px}
+.fb-chip:active{transform:scale(.96)}
+.fb-chip .fbi{font-size:19px}
+
+/* зелёная вспышка подтверждения */
+.flash{position:fixed;inset:0;z-index:400;background:var(--acc3);opacity:0;pointer-events:none;transition:opacity .12s}
+.flash.on{opacity:.55}
+
+/* тост */
+.toast{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);z-index:500;background:var(--bg1);border:1px solid var(--line2);border-radius:13px;padding:13px 18px;font-size:14px;font-weight:700;box-shadow:0 10px 40px rgba(0,0,0,.4);opacity:0;transition:all .3s;max-width:90vw;text-align:center;display:flex;align-items:center;gap:9px}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{color:var(--acc3)}.toast.info{color:var(--acc)}.toast.warn{color:var(--acc2)}
+
+/* демо-QR коды для печати/сканирования */
+.qr-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.qr-cell{background:#fff;border:1px solid var(--line2);border-radius:12px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:7px}
+.qr-cell .qr-box{width:120px;height:120px}
+.qr-cell .qr-lbl{font-size:11px;font-weight:700;color:#0e1428;text-align:center;font-family:var(--fn2)}
+.seg{display:flex;gap:6px;margin-bottom:14px;background:var(--bg3);border-radius:11px;padding:4px}
+.seg button{flex:1;min-height:40px;border:none;border-radius:8px;background:transparent;color:var(--text2);font-weight:700;font-size:13px;font-family:var(--fn);cursor:pointer}
+.seg button.on{background:var(--acc);color:#fff}
+@media print{.top,.acts,.who,.count,.sec-h,.inbox,.note{display:none}}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="bg-grid"></div>
+
+<div class="top">
+  <div class="logo">KL</div>
+  <div class="ttl">Werkzeug<span id="ttl-sub">MITARBEITER · PROTOTYP</span></div>
+  <div class="off" id="offbadge">● <span id="off-t">Offline OK</span></div>
+  <div class="lang">
+    <button data-l="de" class="on">DE</button>
+    <button data-l="ru">RU</button>
+    <button data-l="ro">RO</button>
+  </div>
+  <button class="icobtn" id="btn-theme" title="Theme">◐</button>
+  <button class="icobtn" id="btn-demo" title="Demo / QR">⚙️</button>
+</div>
+
+<div class="wrap">
+  <!-- кто я -->
+  <div class="who">
+    <div class="who-av" id="me-av">I</div>
+    <div class="who-b">
+      <div class="who-n" id="me-name">—</div>
+      <div class="who-r" id="me-role">Mitarbeiter</div>
+    </div>
+    <button class="who-sw" id="me-switch" data-k="switchUser">Wechseln</button>
+  </div>
+
+  <div class="count"><b id="cnt">0</b> <span id="cnt-lbl" data-k="myTools">Werkzeuge bei mir</span></div>
+
+  <!-- входящие -->
+  <div id="inbox"></div>
+
+  <!-- 3 большие кнопки -->
+  <div class="acts">
+    <button class="act recv" id="a-recv">
+      <span class="act-ico">📥</span>
+      <span class="act-t" data-k="accept">Annehmen</span>
+      <span class="act-badge" id="recv-badge" style="display:none">0</span>
+    </button>
+    <button class="act give" id="a-give">
+      <span class="act-ico">🔄</span>
+      <span class="act-t" data-k="give">Übergeben</span>
+    </button>
+    <button class="act back" id="a-back">
+      <span class="act-ico">📦</span>
+      <span class="act-t" data-k="return">Zurück zur Basis</span>
+    </button>
+  </div>
+
+  <div class="sec-h">🧰 <span data-k="myToolsH">Meine Werkzeuge</span></div>
+  <div id="list"></div>
+
+  <div class="note" id="proto-note"></div>
+</div>
+
+<!-- ============ СКАНЕР ============ -->
+<div class="scan" id="scan">
+  <div class="scan-top">
+    <span class="scan-ttl" id="scan-ttl">Scannen</span>
+    <button class="scan-x" id="scan-x">✕</button>
+  </div>
+  <div id="reader">
+    <div class="scan-frame"></div>
+    <div class="scan-hint" id="scan-hint">Kamera wird gestartet…</div>
+  </div>
+  <div class="scan-fb">
+    <div class="scan-fb-h">👆 <span id="fb-h">Demo: tippen statt scannen</span></div>
+    <div class="fb-grid" id="fb-grid"></div>
+  </div>
+</div>
+
+<div class="flash" id="flash"></div>
+<div class="toast" id="toast"></div>
+
+<!-- ============ УНИВЕРСАЛЬНАЯ НИЖНЯЯ МОДАЛКА ============ -->
+<div class="sheet" id="sheet"><div class="card" id="sheet-card"></div></div>
+
+<script>
+/* =========================================================================
+   KL Werkzeug — лёгкое приложение рабочего (ПРОТОТИП)
+   Автономно: данные в localStorage, работает офлайн. Демонстрирует поток
+   «принял → передал → вернул» по QR. Бэкенд (Supabase) подключается позже.
+   ========================================================================= */
+const SK='kl_tool_demo_v1';
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------------- Переводы DE / RU / RO ---------------- */
+const TR={
+ de:{myTools:'Werkzeuge bei mir',myToolsH:'Meine Werkzeuge',accept:'Annehmen',give:'Übergeben',return:'Zurück zur Basis',
+   switchUser:'Wechseln',scan:'Scannen',scanTool:'Werkzeug scannen',scanPerson:'Kollegen scannen',
+   empty:'Kein Werkzeug bei dir.',inboxH:'Eingang — bestätige den Empfang',from:'von',
+   accH:'Empfang bestätigen',accS:'Bitte bestätige, dass du dieses Werkzeug erhalten hast.',
+   name:'Dein Name',accBtn:'ANGENOMMEN',
+   giveH:'An wen übergeben?',giveScan:'Kollegen-QR scannen',givePick:'Aus Liste wählen',
+   retH:'Zurück zur Basis',retS:'Zustand angeben und zurückgeben.',zOk:'i.O.',zBad:'Mangel',
+   photo:'Foto (bei Mangel)',noteF:'Notiz',retBtn:'ZURÜCKGEBEN',retAll:'Alle i.O. zurückgeben',
+   cancel:'Abbrechen',hist:'Verlauf',close:'Schließen',
+   who:'Wer bist du?',role:'Mitarbeiter',
+   pill_mine:'bei mir',pill_wh:'auf Lager',pill_other:'bei Kollege',pill_rep:'Reparatur',over:'überfällig',
+   t_issue:'Ausgegeben',t_receive:'Angenommen',t_transfer:'Übergeben',t_return:'Zurück zur Basis',t_repair:'In Reparatur',
+   toRecv:'wird dir übergeben',demoH:'Demo & QR-Codes',
+   demoTools:'Werkzeuge',demoPeople:'Kollegen',
+   demoNote:'Diese QR-Codes kannst du ausdrucken und aufkleben. Zum Testen mit zwei Handys: ein Handy zeigt den Code, das andere scannt.',
+   reset:'Demo zurücksetzen',
+   scanHint:'QR-Code in den Rahmen halten',camFail:'Kamera nicht verfügbar — nutze die Tasten unten 👇',
+   done_recv:'Angenommen ✓',done_give:'Übergeben an',done_ret:'Zurückgegeben ✓',notMine:'Das ist nicht dein Werkzeug',
+   pickRecv:'Empfänger wählen',fbTool:'Werkzeuge',fbPerson:'Kollegen',
+   protoNote:'ℹ️ Prototyp: Daten bleiben lokal auf diesem Gerät und gehen nicht verloren. Der Empfang wird mit einfacher elektronischer Unterschrift bestätigt (Name + Zeit + Signatur-Hash) — genau wie bei der Fahrzeugübergabe. Text des Protokolls wird noch mit dem Steuerberater abgestimmt.',
+   sig:'Signatur',at:'am'},
+ ru:{myTools:'инструмента у меня',myToolsH:'Мой инструмент',accept:'Принять',give:'Передать',return:'Вернуть на базу',
+   switchUser:'Сменить',scan:'Сканировать',scanTool:'Сканировать инструмент',scanPerson:'Сканировать коллегу',
+   empty:'У тебя нет инструмента.',inboxH:'Входящие — подтверди получение',from:'от',
+   accH:'Подтвердить получение',accS:'Подтверди, что получил этот инструмент.',
+   name:'Твоё имя',accBtn:'ПРИНЯЛ',
+   giveH:'Кому передать?',giveScan:'Сканировать QR коллеги',givePick:'Выбрать из списка',
+   retH:'Вернуть на базу',retS:'Укажи состояние и верни.',zOk:'Исправен',zBad:'Повреждён',
+   photo:'Фото (при повреждении)',noteF:'Заметка',retBtn:'ВЕРНУТЬ',retAll:'Вернуть всё исправным',
+   cancel:'Отмена',hist:'История',close:'Закрыть',
+   who:'Кто ты?',role:'Рабочий',
+   pill_mine:'у меня',pill_wh:'на складе',pill_other:'у коллеги',pill_rep:'ремонт',over:'просрочено',
+   t_issue:'Выдан',t_receive:'Принят',t_transfer:'Передан',t_return:'Возврат на базу',t_repair:'В ремонт',
+   toRecv:'передаётся тебе',demoH:'Демо и QR-коды',
+   demoTools:'Инструмент',demoPeople:'Коллеги',
+   demoNote:'Эти QR-коды можно распечатать и наклеить. Чтобы протестировать вдвоём: один телефон показывает код, другой сканирует.',
+   reset:'Сбросить демо',
+   scanHint:'Наведи QR-код в рамку',camFail:'Камера недоступна — жми кнопки внизу 👇',
+   done_recv:'Принято ✓',done_give:'Передано →',done_ret:'Возвращено ✓',notMine:'Это не твой инструмент',
+   pickRecv:'Выбери получателя',fbTool:'Инструмент',fbPerson:'Коллеги',
+   protoNote:'ℹ️ Прототип: данные хранятся локально на этом устройстве и не теряются. Приём подтверждается простой электронной подписью (имя + время + хэш подписи) — как при передаче авто. Текст протокола ещё согласуем с бухгалтером.',
+   sig:'Подпись',at:'—'},
+ ro:{myTools:'unelte la mine',myToolsH:'Uneltele mele',accept:'Preia',give:'Predă',return:'Înapoi la bază',
+   switchUser:'Schimbă',scan:'Scanează',scanTool:'Scanează unealta',scanPerson:'Scanează colegul',
+   empty:'Nu ai nicio unealtă.',inboxH:'Intrări — confirmă primirea',from:'de la',
+   accH:'Confirmă primirea',accS:'Confirmă că ai primit această unealtă.',
+   name:'Numele tău',accBtn:'AM PRIMIT',
+   giveH:'Cui predai?',giveScan:'Scanează QR-ul colegului',givePick:'Alege din listă',
+   retH:'Înapoi la bază',retS:'Indică starea și returnează.',zOk:'OK',zBad:'Defect',
+   photo:'Foto (la defect)',noteF:'Notă',retBtn:'RETURNEAZĂ',retAll:'Returnează tot OK',
+   cancel:'Anulează',hist:'Istoric',close:'Închide',
+   who:'Cine ești?',role:'Muncitor',
+   pill_mine:'la mine',pill_wh:'în depozit',pill_other:'la coleg',pill_rep:'reparație',over:'întârziat',
+   t_issue:'Eliberat',t_receive:'Primit',t_transfer:'Predat',t_return:'Înapoi la bază',t_repair:'În reparație',
+   toRecv:'ți se predă',demoH:'Demo & coduri QR',
+   demoTools:'Unelte',demoPeople:'Colegi',
+   demoNote:'Aceste coduri QR pot fi tipărite și lipite. Pentru test cu două telefoane: unul arată codul, altul scanează.',
+   reset:'Resetează demo',
+   scanHint:'Ține codul QR în cadru',camFail:'Camera indisponibilă — folosește butoanele de jos 👇',
+   done_recv:'Primit ✓',done_give:'Predat →',done_ret:'Returnat ✓',notMine:'Nu este unealta ta',
+   pickRecv:'Alege destinatarul',fbTool:'Unelte',fbPerson:'Colegi',
+   protoNote:'ℹ️ Prototip: datele rămân local pe acest dispozitiv. Primirea se confirmă cu semnătură electronică simplă (nume + timp + hash) — ca la predarea vehiculelor.',
+   sig:'Semnătură',at:'la'}
+};
+let lang=localStorage.getItem('kl_wz_lang')||'de';
+const t=k=>(TR[lang]&&TR[lang][k])||TR.de[k]||k;
+
+/* ---------------- Демо-данные ---------------- */
+function seed(){
+ return {
+  me:'e1',
+  people:[
+   {id:'e1',name:'Ivan K.',qr:'KLE:e1'},
+   {id:'e2',name:'Petro M.',qr:'KLE:e2'},
+   {id:'e3',name:'Andrii S.',qr:'KLE:e3'},
+   {id:'wh',name:'Lager Salzgitter',qr:'KLE:wh',warehouse:true}
+  ],
+  tools:[
+   {id:'t1',qr:'KLW:7f3a',inv:'WZ-001',name:'Bosch GBH 2-28 Bohrhammer',icon:'🔨',holder:'e1',status:'mine',hist:[{ts:Date.now()-86400000*3,type:'t_receive',who:'e1',sig:'IVAN K.'}]},
+   {id:'t2',qr:'KLW:2b9c',inv:'WZ-002',name:'Hilti AG 125 Winkelschleifer',icon:'⚙️',holder:'e1',status:'mine',due:Date.now()-86400000,hist:[{ts:Date.now()-86400000*10,type:'t_receive',who:'e1',sig:'IVAN K.'}]},
+   {id:'t3',qr:'KLW:5d1e',inv:'WZ-014',name:'Makita DDF Akkuschrauber',icon:'🔩',holder:'e1',status:'pending',from:'e2',hist:[{ts:Date.now()-3600000,type:'t_transfer',who:'e2'}]},
+   {id:'t4',qr:'KLW:9a44',inv:'WZ-021',name:'Bosch GLM 50 Laser-Entfernungsmesser',icon:'📏',holder:'wh',status:'wh',hist:[{ts:Date.now()-86400000*20,type:'t_return',who:'e3'}]},
+   {id:'t5',qr:'KLW:c6f0',inv:'WZ-030',name:'Flex Kartuschenpistole',icon:'🧴',holder:'e2',status:'other',hist:[{ts:Date.now()-86400000*5,type:'t_receive',who:'e2'}]}
+  ]
+ };
+}
+let db=load();
+function load(){try{const d=JSON.parse(localStorage.getItem(SK));if(d&&d.tools)return d;}catch(e){}const s=seed();localStorage.setItem(SK,JSON.stringify(s));return s;}
+function save(){localStorage.setItem(SK,JSON.stringify(db));}
+const person=id=>db.people.find(p=>p.id===id)||{name:'—'};
+const me=()=>person(db.me);
+const myTools=()=>db.tools.filter(x=>x.holder===db.me&&x.status==='mine');
+const incoming=()=>db.tools.filter(x=>x.status==='pending'&&x.holder===db.me);
+
+/* ---------------- Простая «подпись» (демо хэша) ---------------- */
+function sigHash(str){let h=0x811c9dc5;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193);}return('0000000'+(h>>>0).toString(16)).slice(-8);}
+
+/* ---------------- Обратная связь (вспышка/звук/вибро) ---------------- */
+let AC;
+function beep(f=880,d=0.09){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;o.connect(g);g.connect(AC.destination);g.gain.value=.14;o.start();o.stop(AC.currentTime+d);}catch(e){}}
+function buzz(ms=45){try{navigator.vibrate&&navigator.vibrate(ms);}catch(e){}}
+function flash(){const f=$('#flash');f.classList.add('on');setTimeout(()=>f.classList.remove('on'),140);}
+function ok(){flash();beep(920,.09);buzz(45);}
+function toast(msg,cls='ok'){const el=$('#toast');el.className='toast '+cls;el.textContent=msg;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),2600);}
+
+/* ---------------- Рендер ---------------- */
+function render(){
+ const m=me();
+ $('#me-name').textContent=m.name;$('#me-av').textContent=m.name[0];$('#me-role').textContent=t('role');
+ $('#cnt').textContent=myTools().length;$('#cnt-lbl').textContent=t('myTools');
+ $('#proto-note').textContent=t('protoNote');
+ // входящие
+ const inc=incoming();
+ const rb=$('#recv-badge');if(inc.length){rb.style.display='flex';rb.textContent=inc.length;}else rb.style.display='none';
+ $('#inbox').innerHTML=inc.length?`<div class="inbox"><div class="inbox-h">📥 ${t('inboxH')}</div>${inc.map(x=>`
+   <div class="inrow"><div class="inrow-b"><div class="inrow-n">${x.icon} ${esc(x.name)}</div>
+   <div class="inrow-d">${t('from')} ${esc(person(x.from).name)} · ${esc(x.inv)}</div></div>
+   <button class="btn-accept" onclick="openAccept('${x.id}')">${t('accept')}</button></div>`).join('')}</div>`:'';
+ // мой инструмент
+ const mt=myTools();
+ $('#list').innerHTML=mt.length?mt.map(x=>toolCard(x)).join(''):`<div class="empty">${t('empty')}</div>`;
+ // тексты кнопок/лейблов с data-k
+ document.querySelectorAll('[data-k]').forEach(el=>el.textContent=t(el.getAttribute('data-k')));
+}
+function toolCard(x){
+ const over=x.due&&x.due<Date.now();
+ const pill=over?`<span class="pill over">⏰ ${t('over')}</span>`:`<span class="pill mine">${t('pill_mine')}</span>`;
+ return `<button class="tool ${over?'over':''}" onclick="openHist('${x.id}')">
+   <div class="tool-ic">${x.icon}</div>
+   <div class="tool-b"><div class="tool-n">${esc(x.name)}</div>
+   <div class="tool-m">${pill}<span>${esc(x.inv)}</span></div></div>
+   <div class="tool-arr">›</div></button>`;
+}
+
+/* ---------------- Модалка ---------------- */
+function openSheet(html){$('#sheet-card').innerHTML='<div class="grab"></div>'+html;$('#sheet').classList.add('open');}
+function closeSheet(){$('#sheet').classList.remove('open');}
+$('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet();});
+
+/* ===== ПРИЁМ (Annehmen) ===== */
+function openAccept(id){
+ const x=db.tools.find(t=>t.id===id);if(!x)return;
+ const proto=lang==='de'?'Ich bestätige den Empfang des unten genannten Werkzeugs in einwandfreiem Zustand. Ich verpflichte mich, es pfleglich zu behandeln, vor Verlust und Beschädigung zu schützen und Schäden oder Verlust unverzüglich zu melden.'
+   :lang==='ru'?'Подтверждаю получение указанного ниже инструмента в исправном состоянии. Обязуюсь бережно с ним обращаться, беречь от потери и повреждений и незамедлительно сообщать о повреждении или утере.'
+   :'Confirm primirea sculei menționate mai jos în stare bună. Mă oblig să o folosesc cu grijă, să o protejez de pierdere și deteriorare și să raportez imediat orice defecțiune sau pierdere.';
+ openSheet(`<div class="sh-h">${t('accH')}</div><div class="sh-s">${t('accS')}</div>
+  <div class="tool" style="cursor:default;margin-bottom:14px"><div class="tool-ic">${x.icon}</div>
+   <div class="tool-b"><div class="tool-n">${esc(x.name)}</div><div class="tool-m"><span>${esc(x.inv)}</span> · ${t('from')} ${esc(person(x.from||'wh').name)}</div></div></div>
+  <div class="proto">${proto}</div>
+  <div class="field"><label>${t('name')} *</label><input id="acc-name" value="${esc(me().name)}"></div>
+  <button class="btn-xl green" onclick="doAccept('${x.id}')">✍️ ${t('accBtn')}</button>
+  <div class="btn-row"><button class="btn-xl gray" onclick="closeSheet()">${t('cancel')}</button></div>`);
+}
+function doAccept(id){
+ const x=db.tools.find(t=>t.id===id);if(!x)return;
+ const nm=($('#acc-name').value||me().name).toUpperCase();
+ const ts=Date.now();const sig=sigHash(id+nm+ts);
+ x.holder=db.me;x.status='mine';delete x.from;
+ x.hist.push({ts,type:'t_receive',who:db.me,sig:nm,hash:sig});
+ save();ok();closeSheet();render();toast(t('done_recv'),'ok');
+}
+
+/* ===== ПЕРЕДАЧА (Übergeben) ===== */
+let pendingGive=null;
+function startGive(){openScanner('give');}
+function afterScanGive(x){
+ if(x.holder!==db.me||x.status!=='mine'){toast(t('notMine'),'warn');return;}
+ pendingGive=x.id;closeScanner();chooseRecipient(x);
+}
+function chooseRecipient(x){
+ const others=db.people.filter(p=>p.id!==db.me&&!p.warehouse);
+ openSheet(`<div class="sh-h">${t('giveH')}</div>
+  <div class="tool" style="cursor:default;margin-bottom:14px"><div class="tool-ic">${x.icon}</div>
+   <div class="tool-b"><div class="tool-n">${esc(x.name)}</div><div class="tool-m"><span>${esc(x.inv)}</span></div></div></div>
+  <button class="btn-xl blue" style="margin-bottom:12px" onclick="closeSheet();openScanner('giveperson')">📷 ${t('giveScan')}</button>
+  <div class="sec-h">${t('givePick')}</div>
+  ${others.map(p=>`<button class="emp" onclick="doGive('${x.id}','${p.id}')"><div class="emp-av">${p.name[0]}</div><div class="emp-n">${esc(p.name)}</div></button>`).join('')}
+  <div class="btn-row"><button class="btn-xl gray" onclick="closeSheet()">${t('cancel')}</button></div>`);
+}
+function doGive(id,to){
+ const x=db.tools.find(t=>t.id===id);if(!x)return;
+ x.holder=to;x.status='pending';x.from=db.me;
+ x.hist.push({ts:Date.now(),type:'t_transfer',who:db.me,to});
+ save();ok();closeSheet();render();toast(t('done_give')+' '+person(to).name,'info');
+ pendingGive=null;
+}
+
+/* ===== ВОЗВРАТ (Zurück) ===== */
+let retZust='ok';
+function startBack(){openScanner('back');}
+function afterScanBack(x){
+ if(x.holder!==db.me||x.status!=='mine'){toast(t('notMine'),'warn');return;}
+ closeScanner();retZust='ok';
+ openSheet(`<div class="sh-h">${t('retH')}</div><div class="sh-s">${t('retS')}</div>
+  <div class="tool" style="cursor:default;margin-bottom:14px"><div class="tool-ic">${x.icon}</div>
+   <div class="tool-b"><div class="tool-n">${esc(x.name)}</div><div class="tool-m"><span>${esc(x.inv)}</span></div></div></div>
+  <div class="zust">
+   <button class="zbtn ok on" id="z-ok" onclick="setZust('ok')"><span class="zi">✅</span>${t('zOk')}</button>
+   <button class="zbtn bad" id="z-bad" onclick="setZust('bad')"><span class="zi">⚠️</span>${t('zBad')}</button>
+  </div>
+  <div id="badbox" style="display:none">
+   <div class="field"><label>${t('photo')}</label><input type="file" accept="image/*" capture="environment" id="ret-photo"></div>
+   <div class="field"><label>${t('noteF')}</label><textarea id="ret-note" rows="2"></textarea></div>
+  </div>
+  <button class="btn-xl green" style="margin-top:8px" onclick="doBack('${x.id}')">📦 ${t('retBtn')}</button>
+  <div class="btn-row"><button class="btn-xl gray" onclick="closeSheet()">${t('cancel')}</button></div>`);
+}
+function setZust(z){retZust=z;$('#z-ok').classList.toggle('on',z==='ok');$('#z-bad').classList.toggle('on',z==='bad');$('#badbox').style.display=z==='bad'?'block':'none';}
+function doBack(id){
+ const x=db.tools.find(t=>t.id===id);if(!x)return;
+ const bad=retZust==='bad';
+ x.holder='wh';x.status=bad?'rep':'wh';delete x.due;delete x.from;
+ x.hist.push({ts:Date.now(),type:bad?'t_repair':'t_return',who:db.me,cond:retZust});
+ save();ok();closeSheet();render();toast(t('done_ret'),'ok');
+}
+
+/* ===== ИСТОРИЯ ===== */
+function openHist(id){
+ const x=db.tools.find(t=>t.id===id);if(!x)return;
+ const rows=[...x.hist].sort((a,b)=>b.ts-a.ts).map(h=>{
+  const who=person(h.who).name+(h.to?(' → '+person(h.to).name):'');
+  return `<div class="tl-i"><div class="tl-t">${t(h.type)}</div>
+   <div class="tl-d">${esc(who)} · ${new Date(h.ts).toLocaleString(lang==='de'?'de-DE':lang==='ru'?'ru-RU':'ro-RO',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>
+   ${h.hash?`<div class="tl-sig">✍️ ${t('sig')}: ${esc(h.sig)} · #${h.hash}</div>`:''}</div>`;
+ }).join('');
+ openSheet(`<div class="sh-h">${x.icon} ${esc(x.name)}</div><div class="sh-s">${esc(x.inv)} · QR ${esc(x.qr)}</div>
+  <div class="sec-h">🕓 ${t('hist')}</div><div class="tl">${rows}</div>
+  <div class="btn-row"><button class="btn-xl gray" onclick="closeSheet()">${t('close')}</button></div>`);
+}
+
+/* ===== СКАНЕР ===== */
+let qrScanner=null,scanMode=null,scanBusy=false;
+function openScanner(mode){
+ scanMode=mode;scanBusy=false;
+ $('#scan-ttl').textContent=mode==='giveperson'?t('scanPerson'):t('scanTool');
+ buildFallback(mode);
+ $('#scan').classList.add('open');
+ $('#scan-hint').textContent='…';
+ startCamera();
+}
+function startCamera(){
+ if(typeof Html5Qrcode==='undefined'){$('#scan-hint').textContent=t('camFail');return;}
+ try{
+  qrScanner=new Html5Qrcode('reader',{verbose:false});
+  qrScanner.start({facingMode:'environment'},{fps:10,qrbox:{width:220,height:220}},
+   txt=>onDecode(txt),()=>{}).then(()=>{$('#scan-hint').textContent=t('scanHint');})
+   .catch(()=>{$('#scan-hint').textContent=t('camFail');});
+ }catch(e){$('#scan-hint').textContent=t('camFail');}
+}
+function closeScanner(){
+ $('#scan').classList.remove('open');
+ if(qrScanner){qrScanner.stop().then(()=>{qrScanner.clear();qrScanner=null;}).catch(()=>{qrScanner=null;});}
+}
+$('#scan-x').onclick=closeScanner;
+function onDecode(txt){
+ if(scanBusy)return;scanBusy=true;setTimeout(()=>scanBusy=false,1200);
+ handleCode(txt);
+}
+function handleCode(txt){
+ txt=(txt||'').trim();
+ if(scanMode==='giveperson'){
+  if(txt.startsWith('KLE:')){const pid=txt.slice(4);const p=person(pid);if(p&&pid!==db.me&&!p.warehouse){ok();doGive(pendingGive,pid);return;}}
+  toast(t('pickRecv'),'warn');return;
+ }
+ // режимы с инструментом
+ const x=db.tools.find(tt=>tt.qr===txt||('KLW:'+tt.id)===txt||tt.id===txt);
+ if(!x){toast('QR ?','warn');return;}
+ ok();
+ if(scanMode==='give')afterScanGive(x);
+ else if(scanMode==='back')afterScanBack(x);
+ else if(scanMode==='recv'){ // приём: pending для меня или со склада
+   if(x.status==='pending'&&x.holder===db.me){closeScanner();openAccept(x.id);}
+   else if(x.status==='wh'){x.from='wh';closeScanner();openAccept(x.id);}
+   else toast(t('notMine'),'warn');
+ }
+}
+/* заглушки-кнопки «тапни вместо скана» (для теста на одном телефоне) */
+function buildFallback(mode){
+ let items=[];
+ if(mode==='giveperson'){items=db.people.filter(p=>p.id!==db.me&&!p.warehouse).map(p=>({label:p.name,ico:'👤',code:p.qr}));$('#fb-h').textContent=t('fbPerson');}
+ else if(mode==='give'||mode==='back'){items=myTools().map(x=>({label:x.name,ico:x.icon,code:x.qr}));$('#fb-h').textContent=t('fbTool');}
+ else if(mode==='recv'){items=db.tools.filter(x=>(x.status==='pending'&&x.holder===db.me)||x.status==='wh').map(x=>({label:x.name,ico:x.icon,code:x.qr}));$('#fb-h').textContent=t('fbTool');}
+ $('#fb-grid').innerHTML=items.length?items.map(i=>`<button class="fb-chip" onclick="handleCode('${i.code}')"><span class="fbi">${i.ico}</span>${esc(i.label.split(' ').slice(0,2).join(' '))}</button>`).join(''):'<span style="color:#556;font-size:12px">—</span>';
+}
+
+/* ===== кнопки действий ===== */
+$('#a-recv').onclick=()=>{const inc=incoming();if(inc.length===1)openAccept(inc[0].id);else openScanner('recv');};
+$('#a-give').onclick=startGive;
+$('#a-back').onclick=startBack;
+
+/* ===== язык / тема ===== */
+document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{
+ lang=b.dataset.l;localStorage.setItem('kl_wz_lang',lang);document.documentElement.lang=lang;
+ document.querySelectorAll('.lang button').forEach(x=>x.classList.toggle('on',x===b));render();
+});
+const THEMES=['t4','t1','t2'];
+$('#btn-theme').onclick=()=>{let i=THEMES.indexOf(document.documentElement.getAttribute('data-theme'));i=(i+1)%THEMES.length;const th=THEMES[i];document.documentElement.setAttribute('data-theme',th);localStorage.setItem('kl_wz_theme',th);};
+
+/* ===== switch user (демо) ===== */
+$('#me-switch').onclick=()=>{
+ openSheet(`<div class="sh-h">${t('who')}</div><div class="sh-s" style="margin-bottom:12px">Demo</div>
+  ${db.people.filter(p=>!p.warehouse).map(p=>`<button class="emp" onclick="setMe('${p.id}')"><div class="emp-av">${p.name[0]}</div><div class="emp-n">${esc(p.name)}${p.id===db.me?' ✓':''}</div></button>`).join('')}
+  <div class="btn-row"><button class="btn-xl gray" onclick="closeSheet()">${t('cancel')}</button></div>`);
+};
+function setMe(id){db.me=id;save();closeSheet();render();}
+
+/* ===== демо & QR ===== */
+$('#btn-demo').onclick=openDemo;
+function openDemo(){
+ openSheet(`<div class="sh-h">${t('demoH')}</div>
+  <div class="seg"><button class="on" onclick="demoTab(this,'tools')">${t('demoTools')}</button><button onclick="demoTab(this,'people')">${t('demoPeople')}</button></div>
+  <div id="demo-body"></div>
+  <div class="sh-s" style="margin:14px 0 10px">${t('demoNote')}</div>
+  <div class="btn-row"><button class="btn-xl gray" onclick="resetDemo()">↺ ${t('reset')}</button><button class="btn-xl gray" onclick="closeSheet()">${t('close')}</button></div>`);
+ demoRender('tools');
+}
+function demoTab(btn,which){btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===btn));demoRender(which);}
+function demoRender(which){
+ const items=which==='tools'?db.tools.map(x=>({code:x.qr,lbl:x.inv+' · '+x.name.split(' ').slice(0,2).join(' '),ico:x.icon}))
+   :db.people.filter(p=>!p.warehouse).map(p=>({code:p.qr,lbl:p.name,ico:'👤'}));
+ const box=$('#demo-body');box.innerHTML=`<div class="qr-grid">${items.map((i,n)=>`<div class="qr-cell"><div class="qr-box" id="qr-${n}"></div><div class="qr-lbl">${i.ico} ${esc(i.lbl)}</div></div>`).join('')}</div>`;
+ items.forEach((i,n)=>{const el=$('#qr-'+n);el.innerHTML='';try{new QRCode(el,{text:i.code,width:120,height:120,correctLevel:QRCode.CorrectLevel.H});}catch(e){el.textContent=i.code;}});
+}
+function resetDemo(){localStorage.removeItem(SK);db=load();closeSheet();render();toast('✓','ok');}
+
+/* ===== старт ===== */
+document.documentElement.setAttribute('data-theme',localStorage.getItem('kl_wz_theme')||'t4');
+document.documentElement.lang=lang;
+document.querySelectorAll('.lang button').forEach(x=>x.classList.toggle('on',x.dataset.l===lang));
+window.addEventListener('load',()=>{render();});
+render();
+</script>
+</body>
+</html>
